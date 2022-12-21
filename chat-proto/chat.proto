@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package chat;
+
+service Tenants {
+  rpc List(TenantRequest) returns (stream Tenant) {}
+}
+
+message TenantRequest {
+  bool list_all = 1;
+  uint64 id = 2;
+}
+
+message Tenant {
+  uint64 id = 1;
+  string name = 2;
+}
