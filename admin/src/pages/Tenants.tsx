@@ -17,7 +17,7 @@ const Tenants: Component = () => {
       </button>
       <Show when={tenants()} keyed={true} fallback={<Loading />}>
         {(tenantsData: Tenant[]) => (
-          <For each={tenantsData}>{(tenant) => <>{tenant.name}</>}</For>
+          <For each={tenantsData}>{(tenant) => <div>{tenant.name}</div>}</For>
         )}
       </Show>
     </>
