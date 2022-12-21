@@ -15,15 +15,17 @@ pub struct TenantsService {}
 #[tonic::async_trait]
 impl Tenants for TenantsService {
     async fn create(&self, req: Request<Tenant>) -> Result<Response<TenantResponse>, Status> {
-        let new_tenant = Tenant {
-            name: "Orhan".to_string(),
-            id: 2,
-        };
-        Ok(Response::new(TenantResponse {
-            success: true,
-            error: "".to_string(),
-            tenant: Some(new_tenant),
-        }))
+        let conn = &mut connect_to_pg().unwrap();
+        match create_tenant(conn, req.get_ref().name.as_str()) {
+            Ok(tenant) => Ok(Response::new(TenantResponse {
+                success: true,
+                error: "".to_string(),
+                tenant: Some(tenant.into()),
+            })),
+            _ => Err(Status::unknown(
+                "Something went wrong while creating the tenant",
+            )),
+        }
     }
 
     type ListStream = ReceiverStream<Result<Tenant, Status>>;
