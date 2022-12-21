@@ -7,7 +7,7 @@ use dotenvy::dotenv;
 use std::env;
 use tracing::{span, Level};
 
-fn connect_to_pg() -> Result<PgConnection> {
+pub fn connect_to_pg() -> Result<PgConnection> {
     let connect_to_pg_span = span!(Level::DEBUG, "connect_to_pg").entered();
     dotenv()?;
     let database_url =

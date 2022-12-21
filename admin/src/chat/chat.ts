@@ -21,18 +21,35 @@ export interface TenantRequest {
      */
     listAll: boolean;
     /**
-     * @generated from protobuf field: uint64 id = 2;
+     * @generated from protobuf field: string name = 2;
      */
-    id: bigint;
+    name: string;
+}
+/**
+ * @generated from protobuf message chat.TenantResponse
+ */
+export interface TenantResponse {
+    /**
+     * @generated from protobuf field: bool success = 1;
+     */
+    success: boolean;
+    /**
+     * @generated from protobuf field: string error = 2;
+     */
+    error: string;
+    /**
+     * @generated from protobuf field: chat.Tenant tenant = 3;
+     */
+    tenant?: Tenant;
 }
 /**
  * @generated from protobuf message chat.Tenant
  */
 export interface Tenant {
     /**
-     * @generated from protobuf field: uint64 id = 1;
+     * @generated from protobuf field: int32 id = 1;
      */
-    id: bigint;
+    id: number;
     /**
      * @generated from protobuf field: string name = 2;
      */
@@ -43,11 +60,11 @@ class TenantRequest$Type extends MessageType<TenantRequest> {
     constructor() {
         super("chat.TenantRequest", [
             { no: 1, name: "list_all", kind: "scalar", T: 8 /*ScalarType.BOOL*/ },
-            { no: 2, name: "id", kind: "scalar", T: 4 /*ScalarType.UINT64*/, L: 0 /*LongType.BIGINT*/ }
+            { no: 2, name: "name", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
         ]);
     }
     create(value?: PartialMessage<TenantRequest>): TenantRequest {
-        const message = { listAll: false, id: 0n };
+        const message = { listAll: false, name: "" };
         globalThis.Object.defineProperty(message, MESSAGE_TYPE, { enumerable: false, value: this });
         if (value !== undefined)
             reflectionMergePartial<TenantRequest>(this, message, value);
@@ -61,8 +78,8 @@ class TenantRequest$Type extends MessageType<TenantRequest> {
                 case /* bool list_all */ 1:
                     message.listAll = reader.bool();
                     break;
-                case /* uint64 id */ 2:
-                    message.id = reader.uint64().toBigInt();
+                case /* string name */ 2:
+                    message.name = reader.string();
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -79,9 +96,9 @@ class TenantRequest$Type extends MessageType<TenantRequest> {
         /* bool list_all = 1; */
         if (message.listAll !== false)
             writer.tag(1, WireType.Varint).bool(message.listAll);
-        /* uint64 id = 2; */
-        if (message.id !== 0n)
-            writer.tag(2, WireType.Varint).uint64(message.id);
+        /* string name = 2; */
+        if (message.name !== "")
+            writer.tag(2, WireType.LengthDelimited).string(message.name);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
@@ -93,15 +110,76 @@ class TenantRequest$Type extends MessageType<TenantRequest> {
  */
 export const TenantRequest = new TenantRequest$Type();
 // @generated message type with reflection information, may provide speed optimized methods
+class TenantResponse$Type extends MessageType<TenantResponse> {
+    constructor() {
+        super("chat.TenantResponse", [
+            { no: 1, name: "success", kind: "scalar", T: 8 /*ScalarType.BOOL*/ },
+            { no: 2, name: "error", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "tenant", kind: "message", T: () => Tenant }
+        ]);
+    }
+    create(value?: PartialMessage<TenantResponse>): TenantResponse {
+        const message = { success: false, error: "" };
+        globalThis.Object.defineProperty(message, MESSAGE_TYPE, { enumerable: false, value: this });
+        if (value !== undefined)
+            reflectionMergePartial<TenantResponse>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: TenantResponse): TenantResponse {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* bool success */ 1:
+                    message.success = reader.bool();
+                    break;
+                case /* string error */ 2:
+                    message.error = reader.string();
+                    break;
+                case /* chat.Tenant tenant */ 3:
+                    message.tenant = Tenant.internalBinaryRead(reader, reader.uint32(), options, message.tenant);
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: TenantResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* bool success = 1; */
+        if (message.success !== false)
+            writer.tag(1, WireType.Varint).bool(message.success);
+        /* string error = 2; */
+        if (message.error !== "")
+            writer.tag(2, WireType.LengthDelimited).string(message.error);
+        /* chat.Tenant tenant = 3; */
+        if (message.tenant)
+            Tenant.internalBinaryWrite(message.tenant, writer.tag(3, WireType.LengthDelimited).fork(), options).join();
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message chat.TenantResponse
+ */
+export const TenantResponse = new TenantResponse$Type();
+// @generated message type with reflection information, may provide speed optimized methods
 class Tenant$Type extends MessageType<Tenant> {
     constructor() {
         super("chat.Tenant", [
-            { no: 1, name: "id", kind: "scalar", T: 4 /*ScalarType.UINT64*/, L: 0 /*LongType.BIGINT*/ },
+            { no: 1, name: "id", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
             { no: 2, name: "name", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
         ]);
     }
     create(value?: PartialMessage<Tenant>): Tenant {
-        const message = { id: 0n, name: "" };
+        const message = { id: 0, name: "" };
         globalThis.Object.defineProperty(message, MESSAGE_TYPE, { enumerable: false, value: this });
         if (value !== undefined)
             reflectionMergePartial<Tenant>(this, message, value);
@@ -112,8 +190,8 @@ class Tenant$Type extends MessageType<Tenant> {
         while (reader.pos < end) {
             let [fieldNo, wireType] = reader.tag();
             switch (fieldNo) {
-                case /* uint64 id */ 1:
-                    message.id = reader.uint64().toBigInt();
+                case /* int32 id */ 1:
+                    message.id = reader.int32();
                     break;
                 case /* string name */ 2:
                     message.name = reader.string();
@@ -130,9 +208,9 @@ class Tenant$Type extends MessageType<Tenant> {
         return message;
     }
     internalBinaryWrite(message: Tenant, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
-        /* uint64 id = 1; */
-        if (message.id !== 0n)
-            writer.tag(1, WireType.Varint).uint64(message.id);
+        /* int32 id = 1; */
+        if (message.id !== 0)
+            writer.tag(1, WireType.Varint).int32(message.id);
         /* string name = 2; */
         if (message.name !== "")
             writer.tag(2, WireType.LengthDelimited).string(message.name);
@@ -150,5 +228,6 @@ export const Tenant = new Tenant$Type();
  * @generated ServiceType for protobuf service chat.Tenants
  */
 export const Tenants = new ServiceType("chat.Tenants", [
+    { name: "Create", options: {}, I: Tenant, O: TenantResponse },
     { name: "List", serverStreaming: true, options: {}, I: TenantRequest, O: Tenant }
 ]);

@@ -4,15 +4,21 @@
 import type { RpcTransport } from "@protobuf-ts/runtime-rpc";
 import type { ServiceInfo } from "@protobuf-ts/runtime-rpc";
 import { Tenants } from "./chat";
-import { stackIntercept } from "@protobuf-ts/runtime-rpc";
-import type { Tenant } from "./chat";
 import type { TenantRequest } from "./chat";
 import type { ServerStreamingCall } from "@protobuf-ts/runtime-rpc";
+import { stackIntercept } from "@protobuf-ts/runtime-rpc";
+import type { TenantResponse } from "./chat";
+import type { Tenant } from "./chat";
+import type { UnaryCall } from "@protobuf-ts/runtime-rpc";
 import type { RpcOptions } from "@protobuf-ts/runtime-rpc";
 /**
  * @generated from protobuf service chat.Tenants
  */
 export interface ITenantsClient {
+    /**
+     * @generated from protobuf rpc: Create(chat.Tenant) returns (chat.TenantResponse);
+     */
+    create(input: Tenant, options?: RpcOptions): UnaryCall<Tenant, TenantResponse>;
     /**
      * @generated from protobuf rpc: List(chat.TenantRequest) returns (stream chat.Tenant);
      */
@@ -28,10 +34,17 @@ export class TenantsClient implements ITenantsClient, ServiceInfo {
     constructor(private readonly _transport: RpcTransport) {
     }
     /**
+     * @generated from protobuf rpc: Create(chat.Tenant) returns (chat.TenantResponse);
+     */
+    create(input: Tenant, options?: RpcOptions): UnaryCall<Tenant, TenantResponse> {
+        const method = this.methods[0], opt = this._transport.mergeOptions(options);
+        return stackIntercept<Tenant, TenantResponse>("unary", this._transport, method, opt, input);
+    }
+    /**
      * @generated from protobuf rpc: List(chat.TenantRequest) returns (stream chat.Tenant);
      */
     list(input: TenantRequest, options?: RpcOptions): ServerStreamingCall<TenantRequest, Tenant> {
-        const method = this.methods[0], opt = this._transport.mergeOptions(options);
+        const method = this.methods[1], opt = this._transport.mergeOptions(options);
         return stackIntercept<TenantRequest, Tenant>("serverStreaming", this._transport, method, opt, input);
     }
 }

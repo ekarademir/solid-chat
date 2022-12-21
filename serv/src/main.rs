@@ -16,6 +16,12 @@ use crate::services::tenants::{TenantsServer, TenantsService};
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let addr = "[::1]:50051".parse()?;
+    listen(addr).await?;
+
+    Ok(())
+}
+
+async fn listen(addr: std::net::SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
     let tenants_service = TenantsServer::new(TenantsService::default());
 
     let grpc_encoding_header = HeaderName::from_static("grpc-encoding");

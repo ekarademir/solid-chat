@@ -3,15 +3,22 @@ syntax = "proto3";
 package chat;
 
 service Tenants {
+  rpc Create(Tenant) returns (TenantResponse) {}
   rpc List(TenantRequest) returns (stream Tenant) {}
 }
 
 message TenantRequest {
   bool list_all = 1;
-  uint64 id = 2;
+  string name = 2;
+}
+
+message TenantResponse {
+  bool success = 1;
+  string error = 2;
+  Tenant tenant = 3;
 }
 
 message Tenant {
-  uint64 id = 1;
+  int32 id = 1;
   string name = 2;
 }

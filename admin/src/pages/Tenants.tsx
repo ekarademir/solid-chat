@@ -9,12 +9,18 @@ const tenantsService = new TenantsClient(transport);
 
 const Tenants: Component = () => {
   const [tenants] = createResource(listTenants);
+
   return (
-    <Show when={tenants()} keyed={true} fallback={<Loading />}>
-      {(tenantsData: Tenant[]) => (
-        <For each={tenantsData}>{(tenant) => <>{tenant.name}</>}</For>
-      )}
-    </Show>
+    <>
+      <button onClick={() => newTenant().then((t) => console.log(t))}>
+        New Tenant
+      </button>
+      <Show when={tenants()} keyed={true} fallback={<Loading />}>
+        {(tenantsData: Tenant[]) => (
+          <For each={tenantsData}>{(tenant) => <>{tenant.name}</>}</For>
+        )}
+      </Show>
+    </>
   );
 };
 
@@ -24,7 +30,7 @@ async function listTenants(): Promise<Tenant[]> {
   try {
     const pendingResponse = tenantsService.list({
       listAll: true,
-      id: 0n,
+      name: "",
     });
     const tenants = [];
     for await (let t of pendingResponse.responses) tenants.push(t);
@@ -32,5 +38,18 @@ async function listTenants(): Promise<Tenant[]> {
   } catch (e) {
     console.error(e);
     return [];
+  }
+}
+
+async function newTenant(): Promise<Tenant> {
+  try {
+    const pendingResponse = tenantsService.create({
+      name: "Yeni",
+      id: 0,
+    });
+    const response = await pendingResponse.response;
+    return response.tenant;
+  } catch (e) {
+    console.error(e);
   }
 }
