@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "serve": "vite preview"
+    "serve": "vite preview",
+    "refresh-proto": "npx protoc --ts_out src/chat --proto_path ../chat-proto ../chat-proto/chat.proto"
   },
   "license": "MIT",
   "devDependencies": {

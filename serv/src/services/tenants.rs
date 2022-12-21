@@ -28,6 +28,15 @@ impl Tenants for TenantsService {
         }
     }
 
+    async fn delete(
+        &self,
+        req: Request<TenantRequest>,
+    ) -> Result<Response<TenantResponse>, Status> {
+        Err(Status::unimplemented(
+            "This endpoint is not implemented yet",
+        ))
+    }
+
     type ListStream = ReceiverStream<Result<Tenant, Status>>;
     async fn list(
         &self,

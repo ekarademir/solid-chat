@@ -5,6 +5,7 @@ package chat;
 service Tenants {
   rpc Create(Tenant) returns (TenantResponse) {}
   rpc List(TenantRequest) returns (stream Tenant) {}
+  rpc Delete(TenantRequest) returns (TenantResponse) {}
 }
 
 message TenantRequest {
