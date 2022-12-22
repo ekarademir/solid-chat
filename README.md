@@ -49,6 +49,8 @@ username: postgres
 postgres://postgres:mysecretpassword@localhost/diesel_demo
 ```
 
+## Protobuf
+
 ### Web client generation
 
 Run in the web folders. See [protobuf-ts](https://github.com/timostamm/protobuf-ts/blob/master/MANUAL.md)
@@ -63,3 +65,11 @@ Also [see](https://github.com/grpc/grpc-web/issues/704#issuecomment-1215965557)
 brew install protobuf@3
 brew link --overwrite protobuf@3
 ```
+
+## Local development
+
+###
+
+[Creating and assigning self signed certs](https://letsencrypt.org/docs/certificates-for-localhost/).
+[Using minica to self sign](https://gist.github.com/mwidmann/115c2a7059dcce300b61f625d887e5dc).
+[minica usage](https://github.com/jsha/minica).

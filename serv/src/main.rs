@@ -8,7 +8,7 @@ pub mod chat {
 }
 
 use http::{header::HeaderName, HeaderValue, Method};
-use tonic::transport::Server;
+use tonic::transport::{Identity, Server, ServerTlsConfig};
 use tower_http::cors::{Any, CorsLayer};
 
 use crate::services::tenants::{TenantsServer, TenantsService};
@@ -24,13 +24,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 async fn listen(addr: std::net::SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
     let tenants_service = TenantsServer::new(TenantsService::default());
 
+    // TLS
+    let key = std::fs::read_to_string("../ssl/key.pem")?;
+    let cert = std::fs::read_to_string("../ssl/cert.pem")?;
+    let tls_config = ServerTlsConfig::new().identity(Identity::from_pem(&cert, &key));
+
+    // Ready for grpc-web
     let grpc_encoding_header = HeaderName::from_static("grpc-encoding");
     let grpc_message_header = HeaderName::from_static("grpc-message");
     let grpc_status_header = HeaderName::from_static("grpc-status");
 
     let cors = CorsLayer::new()
         .allow_methods([Method::GET, Method::POST])
-        .allow_origin("http://localhost:3000".parse::<HeaderValue>().unwrap())
+        .allow_origin(
+            "https://rotatingwave.local:8000"
+                .parse::<HeaderValue>()
+                .unwrap(),
+        )
         .allow_headers(Any)
         .expose_headers([
             grpc_encoding_header,
@@ -38,8 +48,10 @@ async fn listen(addr: std::net::SocketAddr) -> Result<(), Box<dyn std::error::Er
             grpc_status_header,
         ]);
 
+    // Listen
     println!("Listenning at {}", addr);
     Server::builder()
+        .tls_config(tls_config)?
         .accept_http1(true)
         .layer(cors)
         .layer(tonic_web::GrpcWebLayer::new())
