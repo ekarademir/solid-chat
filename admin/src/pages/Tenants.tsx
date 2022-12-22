@@ -17,7 +17,22 @@ const Tenants: Component = () => {
       </button>
       <Show when={tenants()} keyed={true} fallback={<Loading />}>
         {(tenantsData: Tenant[]) => (
-          <For each={tenantsData}>{(tenant) => <div>{tenant.name}</div>}</For>
+          <For each={tenantsData}>
+            {(tenant) => (
+              <div>
+                {tenant.name}
+                <button
+                  onClick={() =>
+                    deleteTenant(tenant.name).then(() =>
+                      console.log(`Deleted ${tenant.name}`)
+                    )
+                  }
+                >
+                  Del
+                </button>
+              </div>
+            )}
+          </For>
         )}
       </Show>
     </>
@@ -49,6 +64,18 @@ async function newTenant(): Promise<Tenant> {
     });
     const response = await pendingResponse.response;
     return response.tenant;
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+async function deleteTenant(name: string) {
+  try {
+    const pendingResponse = tenantsService.delete({
+      listAll: false,
+      name,
+    });
+    return pendingResponse.response;
   } catch (e) {
     console.error(e);
   }

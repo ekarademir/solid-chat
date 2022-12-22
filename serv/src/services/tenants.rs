@@ -2,10 +2,7 @@ use tokio_stream::wrappers::ReceiverStream;
 use tonic::{Request, Response, Status};
 
 use crate::chat::{tenants_server::Tenants, Tenant, TenantRequest, TenantResponse};
-use crate::commands::{
-    connect_to_pg,
-    tenant::{create_tenant, find_tenant, list_tenants},
-};
+use crate::commands;
 
 pub use crate::chat::tenants_server::TenantsServer;
 
@@ -15,8 +12,8 @@ pub struct TenantsService {}
 #[tonic::async_trait]
 impl Tenants for TenantsService {
     async fn create(&self, req: Request<Tenant>) -> Result<Response<TenantResponse>, Status> {
-        let conn = &mut connect_to_pg().unwrap();
-        match create_tenant(conn, req.get_ref().name.as_str()) {
+        let conn = &mut commands::connect_to_pg().unwrap();
+        match commands::tenants::create_tenant(conn, req.get_ref().name.as_str()) {
             Ok(tenant) => Ok(Response::new(TenantResponse {
                 success: true,
                 error: "".to_string(),
@@ -32,9 +29,17 @@ impl Tenants for TenantsService {
         &self,
         req: Request<TenantRequest>,
     ) -> Result<Response<TenantResponse>, Status> {
-        Err(Status::unimplemented(
-            "This endpoint is not implemented yet",
-        ))
+        let conn = &mut commands::connect_to_pg().unwrap();
+        match commands::tenants::delete_tenant(conn, req.get_ref().name.as_str()) {
+            Ok(()) => Ok(Response::new(TenantResponse {
+                success: true,
+                error: "".to_string(),
+                tenant: None,
+            })),
+            _ => Err(Status::unknown(
+                "Something went wrong while creating the tenant",
+            )),
+        }
     }
 
     type ListStream = ReceiverStream<Result<Tenant, Status>>;
@@ -48,14 +53,14 @@ impl Tenants for TenantsService {
             let name = req.get_ref().name.as_str();
 
             if list_all {
-                let conn = &mut connect_to_pg().unwrap();
-                let tenants = list_tenants(conn).unwrap();
+                let conn = &mut commands::connect_to_pg().unwrap();
+                let tenants = commands::tenants::list_tenants(conn).unwrap();
                 for tenant in tenants {
                     tx.send(Ok(tenant.into())).await.unwrap();
                 }
             } else if name.len() > 0 {
-                let conn = &mut connect_to_pg().unwrap();
-                match find_tenant(conn, name) {
+                let conn = &mut commands::connect_to_pg().unwrap();
+                match commands::tenants::find_tenant(conn, name) {
                     Ok(tenant) => tx.send(Ok(tenant.into())).await.unwrap(),
                     _ => tx
                         .send(Err(Status::not_found("Requested tenant not found")))

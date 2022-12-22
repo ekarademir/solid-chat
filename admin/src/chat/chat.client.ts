@@ -24,9 +24,9 @@ export interface ITenantsClient {
      */
     list(input: TenantRequest, options?: RpcOptions): ServerStreamingCall<TenantRequest, Tenant>;
     /**
-     * @generated from protobuf rpc: Delete(chat.TenantRequest) returns (stream chat.TenantResponse);
+     * @generated from protobuf rpc: Delete(chat.TenantRequest) returns (chat.TenantResponse);
      */
-    delete(input: TenantRequest, options?: RpcOptions): ServerStreamingCall<TenantRequest, TenantResponse>;
+    delete(input: TenantRequest, options?: RpcOptions): UnaryCall<TenantRequest, TenantResponse>;
 }
 /**
  * @generated from protobuf service chat.Tenants
@@ -52,10 +52,10 @@ export class TenantsClient implements ITenantsClient, ServiceInfo {
         return stackIntercept<TenantRequest, Tenant>("serverStreaming", this._transport, method, opt, input);
     }
     /**
-     * @generated from protobuf rpc: Delete(chat.TenantRequest) returns (stream chat.TenantResponse);
+     * @generated from protobuf rpc: Delete(chat.TenantRequest) returns (chat.TenantResponse);
      */
-    delete(input: TenantRequest, options?: RpcOptions): ServerStreamingCall<TenantRequest, TenantResponse> {
+    delete(input: TenantRequest, options?: RpcOptions): UnaryCall<TenantRequest, TenantResponse> {
         const method = this.methods[2], opt = this._transport.mergeOptions(options);
-        return stackIntercept<TenantRequest, TenantResponse>("serverStreaming", this._transport, method, opt, input);
+        return stackIntercept<TenantRequest, TenantResponse>("unary", this._transport, method, opt, input);
     }
 }

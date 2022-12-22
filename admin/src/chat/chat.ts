@@ -230,5 +230,5 @@ export const Tenant = new Tenant$Type();
 export const Tenants = new ServiceType("chat.Tenants", [
     { name: "Create", options: {}, I: Tenant, O: TenantResponse },
     { name: "List", serverStreaming: true, options: {}, I: TenantRequest, O: Tenant },
-    { name: "Delete", serverStreaming: true, options: {}, I: TenantRequest, O: TenantResponse }
+    { name: "Delete", options: {}, I: TenantRequest, O: TenantResponse }
 ]);

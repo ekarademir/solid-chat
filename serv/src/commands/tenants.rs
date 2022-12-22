@@ -21,25 +21,41 @@ pub fn create_tenant(conn: &mut PgConnection, tenant_name: &str) -> Result<Tenan
 }
 
 pub fn find_tenant(conn: &mut PgConnection, name: &str) -> Result<TenantModel> {
-    let find_teantn_span = span!(Level::INFO, "find_tenant").entered();
+    let find_tenant_span = span!(Level::INFO, "find_tenant").entered();
 
     let tenant_name_filter = format!("%{}%", name);
 
     let result = tenants::dsl::tenants
         .filter(tenants::columns::tenant_name.like(tenant_name_filter))
-        .first(conn)?;
+        .first(conn)
+        .context(format!("Can not find tenant, {}", name))?;
 
-    find_teantn_span.exit();
+    find_tenant_span.exit();
 
     Ok(result)
 }
 
 pub fn list_tenants(conn: &mut PgConnection) -> Result<Vec<TenantModel>> {
-    let find_teantn_span = span!(Level::INFO, "find_tenant").entered();
+    let list_tenant_span = span!(Level::INFO, "list_tenant").entered();
 
-    let result = tenants::dsl::tenants.load::<TenantModel>(conn)?;
+    let result = tenants::dsl::tenants
+        .load::<TenantModel>(conn)
+        .context(format!("Can not list tenants"))?;
 
-    find_teantn_span.exit();
+    list_tenant_span.exit();
 
     Ok(result)
+}
+
+pub fn delete_tenant(conn: &mut PgConnection, name: &str) -> Result<()> {
+    let delete_tenant_span = span!(Level::INFO, "delete_tenant").entered();
+
+    let tenant_name_filter = format!("%{}%", name);
+
+    diesel::delete(tenants::table.filter(tenants::columns::tenant_name.like(tenant_name_filter)))
+        .execute(conn)
+        .context(format!("Can not delete tenant, {}", name))?;
+
+    delete_tenant_span.exit();
+    Ok(())
 }

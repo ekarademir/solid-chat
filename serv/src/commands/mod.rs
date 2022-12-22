@@ -1,4 +1,4 @@
-pub mod tenant;
+pub mod tenants;
 
 use anyhow::{Context, Result};
 use diesel::pg::PgConnection;
