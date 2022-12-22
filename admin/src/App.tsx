@@ -1,21 +1,23 @@
 import { Component, lazy } from "solid-js";
 import { A, Route, Routes } from "@solidjs/router";
 
+import { MainMenu, MainMenuItem } from "./components/MainMenu";
+
 const Home = lazy(() => import("./pages/Home"));
-const Tenants = lazy(() => import("./pages/Tenants"));
+const Tenants = lazy(() => import("./pages/tenants/Tenants"));
 
 const App: Component = () => {
   return (
     <div class="columns">
-      <div class="column is-1">
-        <aside class="menu">
-          <ul class="menu-list">
-            <li>
-              <A href="/">Home</A>
-              <A href="/tenants">Tenants</A>
-            </li>
-          </ul>
-        </aside>
+      <div class="column is-2">
+        <MainMenu>
+          <MainMenuItem>
+            <A href="/">Home</A>
+          </MainMenuItem>
+          <MainMenuItem>
+            <A href="/tenants">Tenants</A>
+          </MainMenuItem>
+        </MainMenu>
       </div>
       <div class="column">
         <Routes>
