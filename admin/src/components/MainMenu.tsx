@@ -1,8 +1,6 @@
-import { Component } from "solid-js";
+import { ParentComponent } from "solid-js";
 
-import { ChildrenProps } from "../lib/types";
-
-export const MainMenu: Component<ChildrenProps> = (props) => {
+export const MainMenu: ParentComponent = (props) => {
   return (
     <aside class="menu">
       <ul class="menu-list">{props.children}</ul>
@@ -10,6 +8,6 @@ export const MainMenu: Component<ChildrenProps> = (props) => {
   );
 };
 
-export const MainMenuItem: Component<ChildrenProps> = (props) => {
+export const MainMenuItem: ParentComponent = (props) => {
   return <li>{props.children}</li>;
 };
