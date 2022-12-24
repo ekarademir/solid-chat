@@ -1,10 +1,4 @@
-import {
-  createEffect,
-  ParentComponent,
-  JSXElement,
-  Show,
-  createSignal,
-} from "solid-js";
+import { ParentComponent, JSXElement, Show } from "solid-js";
 
 export interface ModalProps {
   title: string;
