@@ -14,8 +14,6 @@ message TenantRequest {
 }
 
 message TenantResponse {
-  bool success = 1;
-  string error = 2;
   Tenant tenant = 3;
 }
 

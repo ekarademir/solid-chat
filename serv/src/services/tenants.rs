@@ -15,8 +15,6 @@ impl Tenants for TenantsService {
         let conn = &mut commands::connect_to_pg().unwrap();
         match commands::tenants::create_tenant(conn, req.get_ref().name.as_str()) {
             Ok(tenant) => Ok(Response::new(TenantResponse {
-                success: true,
-                error: "".to_string(),
                 tenant: Some(tenant.into()),
             })),
             _ => Err(Status::unknown(
@@ -31,11 +29,7 @@ impl Tenants for TenantsService {
     ) -> Result<Response<TenantResponse>, Status> {
         let conn = &mut commands::connect_to_pg().unwrap();
         match commands::tenants::delete_tenant(conn, req.get_ref().name.as_str()) {
-            Ok(()) => Ok(Response::new(TenantResponse {
-                success: true,
-                error: "".to_string(),
-                tenant: None,
-            })),
+            Ok(()) => Ok(Response::new(TenantResponse { tenant: None })),
             _ => Err(Status::unknown(
                 "Something went wrong while creating the tenant",
             )),

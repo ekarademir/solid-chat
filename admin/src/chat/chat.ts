@@ -30,14 +30,6 @@ export interface TenantRequest {
  */
 export interface TenantResponse {
     /**
-     * @generated from protobuf field: bool success = 1;
-     */
-    success: boolean;
-    /**
-     * @generated from protobuf field: string error = 2;
-     */
-    error: string;
-    /**
      * @generated from protobuf field: chat.Tenant tenant = 3;
      */
     tenant?: Tenant;
@@ -113,13 +105,11 @@ export const TenantRequest = new TenantRequest$Type();
 class TenantResponse$Type extends MessageType<TenantResponse> {
     constructor() {
         super("chat.TenantResponse", [
-            { no: 1, name: "success", kind: "scalar", T: 8 /*ScalarType.BOOL*/ },
-            { no: 2, name: "error", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
             { no: 3, name: "tenant", kind: "message", T: () => Tenant }
         ]);
     }
     create(value?: PartialMessage<TenantResponse>): TenantResponse {
-        const message = { success: false, error: "" };
+        const message = {};
         globalThis.Object.defineProperty(message, MESSAGE_TYPE, { enumerable: false, value: this });
         if (value !== undefined)
             reflectionMergePartial<TenantResponse>(this, message, value);
@@ -130,12 +120,6 @@ class TenantResponse$Type extends MessageType<TenantResponse> {
         while (reader.pos < end) {
             let [fieldNo, wireType] = reader.tag();
             switch (fieldNo) {
-                case /* bool success */ 1:
-                    message.success = reader.bool();
-                    break;
-                case /* string error */ 2:
-                    message.error = reader.string();
-                    break;
                 case /* chat.Tenant tenant */ 3:
                     message.tenant = Tenant.internalBinaryRead(reader, reader.uint32(), options, message.tenant);
                     break;
@@ -151,12 +135,6 @@ class TenantResponse$Type extends MessageType<TenantResponse> {
         return message;
     }
     internalBinaryWrite(message: TenantResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
-        /* bool success = 1; */
-        if (message.success !== false)
-            writer.tag(1, WireType.Varint).bool(message.success);
-        /* string error = 2; */
-        if (message.error !== "")
-            writer.tag(2, WireType.LengthDelimited).string(message.error);
         /* chat.Tenant tenant = 3; */
         if (message.tenant)
             Tenant.internalBinaryWrite(message.tenant, writer.tag(3, WireType.LengthDelimited).fork(), options).join();
