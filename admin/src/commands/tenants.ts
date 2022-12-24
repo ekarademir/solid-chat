@@ -19,10 +19,10 @@ export async function listTenants(): Promise<Tenant[]> {
   }
 }
 
-export async function newTenant(): Promise<Tenant> {
+export async function newTenant(name: string): Promise<Tenant> {
   try {
     const pendingResponse = tenantsService.create({
-      name: "Yeni",
+      name,
       id: 0,
     });
     const response = await pendingResponse.response;
