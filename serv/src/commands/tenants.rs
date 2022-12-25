@@ -13,7 +13,7 @@ pub fn create_tenant(conn: &mut PgConnection, tenant_name: &str) -> Result<Tenan
     let result = diesel::insert_into(tenants::table)
         .values(&new_tenant)
         .get_result(conn)
-        .context(format!("Can not insert {}", tenant_name))?;
+        .context(tenant_name.to_string())?;
 
     create_tenant_span.exit();
 

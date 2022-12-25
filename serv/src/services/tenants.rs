@@ -3,6 +3,7 @@ use tonic::{Request, Response, Status};
 
 use crate::chat::{tenants_server::Tenants, Tenant, TenantRequest, TenantResponse};
 use crate::commands;
+use crate::errors;
 
 pub use crate::chat::tenants_server::TenantsServer;
 
@@ -17,9 +18,7 @@ impl Tenants for TenantsService {
             Ok(tenant) => Ok(Response::new(TenantResponse {
                 tenant: Some(tenant.into()),
             })),
-            _ => Err(Status::unknown(
-                "Something went wrong while creating the tenant",
-            )),
+            Err(e) => Err(errors::into_status(e)),
         }
     }
 
@@ -30,9 +29,7 @@ impl Tenants for TenantsService {
         let conn = &mut commands::connect_to_pg().unwrap();
         match commands::tenants::delete_tenant(conn, req.get_ref().name.as_str()) {
             Ok(()) => Ok(Response::new(TenantResponse { tenant: None })),
-            _ => Err(Status::unknown(
-                "Something went wrong while creating the tenant",
-            )),
+            Err(e) => Err(errors::into_status(e)),
         }
     }
 

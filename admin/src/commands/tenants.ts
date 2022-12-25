@@ -2,6 +2,8 @@ import { Tenant } from "../chat/chat";
 import { TenantsClient } from "../chat/chat.client";
 import { transport } from "../lib/transport";
 
+import { errorMessage } from ".";
+
 const tenantsService = new TenantsClient(transport);
 
 export async function listTenants(): Promise<Tenant[]> {
@@ -28,7 +30,7 @@ export async function newTenant(name: string): Promise<Tenant> {
     const response = await pendingResponse.response;
     return response.tenant;
   } catch (e) {
-    console.error(e);
+    console.log(errorMessage(e));
   }
 }
 
