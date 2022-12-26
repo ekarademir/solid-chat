@@ -171,7 +171,7 @@ export const NotificationsProvider: ParentComponent<{
               <div class="column is-full m-3">
                 <NotificationComponent
                   type={notification.type}
-                  deleteAction={consumeNotifications}
+                  cancelAction={consumeNotifications}
                 >
                   {notification.message}
                 </NotificationComponent>
