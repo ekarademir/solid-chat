@@ -1,5 +1,17 @@
-import { createContext, useContext, ParentComponent } from "solid-js";
+import {
+  createContext,
+  createEffect,
+  createSignal,
+  onMount,
+  ParentComponent,
+  Show,
+  useContext,
+} from "solid-js";
 import { createStore } from "solid-js/store";
+
+import NotificationComponent from "../components/Notification";
+
+const DEFAULT_DURATION = 2000; // ms
 
 export enum NotificationStatus {
   SCHEDULED,
@@ -9,7 +21,7 @@ export enum NotificationStatus {
 }
 
 export enum NotificationType {
-  MESSAGE,
+  SUCCESS,
   WARNING,
   ERROR,
 }
@@ -28,9 +40,10 @@ export type NotificationsContextValue = [
   state: NotificationsContextState,
   actions: {
     scheduleNotification: (notification: Notification) => void;
-    scheduleMessage: (message: string) => void;
+    scheduleSuccess: (message: string) => void;
     scheduleWarning: (message: string) => void;
     scheduleError: (message: string) => void;
+    nextNotification: () => Notification | void;
   }
 ];
 
@@ -42,20 +55,22 @@ const NotificationsContext = createContext<NotificationsContextValue>([
   defaultState,
   {
     scheduleNotification: () => undefined,
-    scheduleMessage: () => undefined,
+    scheduleSuccess: () => undefined,
     scheduleWarning: () => undefined,
     scheduleError: () => undefined,
+    nextNotification: () => undefined,
   },
 ]);
 
 export const NotificationsProvider: ParentComponent<{
   notifications?: Notification[];
+  notificationDuration?: number;
 }> = (props) => {
   const [notificationsState, setNotificationsState] =
     createStore<NotificationsContextState>({
-      notificationsList: [...props.notifications] ?? [
-        ...defaultState.notificationsList,
-      ],
+      notificationsList: props.notifications
+        ? [...props.notifications]
+        : [...defaultState.notificationsList],
     });
 
   const scheduleNotification = (notification: Notification) =>
@@ -64,13 +79,13 @@ export const NotificationsProvider: ParentComponent<{
       notification,
     ]);
 
-  const scheduleMessage = (message: string) =>
+  const scheduleSuccess = (message: string) =>
     setNotificationsState("notificationsList", (prev) => [
       ...prev,
       {
         message,
         status: NotificationStatus.SCHEDULED,
-        type: NotificationType.MESSAGE,
+        type: NotificationType.SUCCESS,
       },
     ]);
 
@@ -85,14 +100,49 @@ export const NotificationsProvider: ParentComponent<{
     ]);
 
   const scheduleError = (message: string) =>
-    setNotificationsState("notificationsList", (prev) => [
-      ...prev,
-      {
-        message,
-        status: NotificationStatus.SCHEDULED,
-        type: NotificationType.ERROR,
-      },
-    ]);
+    setNotificationsState("notificationsList", (prev) => {
+      return [
+        ...prev,
+        {
+          message,
+          status: NotificationStatus.SCHEDULED,
+          type: NotificationType.ERROR,
+        },
+      ];
+    });
+
+  const nextNotification = () => {
+    if (notificationsState.notificationsList.length) {
+      const first = notificationsState.notificationsList[0];
+      setNotificationsState(
+        "notificationsList",
+        notificationsState.notificationsList.slice(1)
+      );
+      return first;
+    }
+  };
+
+  const [currentNotification, setCurrentNotification] =
+    createSignal<Notification>();
+
+  const consumeNotifications = () => {
+    setCurrentNotification();
+    const nextOne = nextNotification();
+    if (nextOne) {
+      setCurrentNotification(nextOne);
+      setTimeout(
+        () => consumeNotifications(),
+        props.notificationDuration ?? DEFAULT_DURATION
+      );
+    }
+  };
+
+  onMount(consumeNotifications);
+  createEffect(() => {
+    if (!currentNotification()) {
+      consumeNotifications();
+    }
+  });
 
   return (
     <NotificationsContext.Provider
@@ -100,25 +150,32 @@ export const NotificationsProvider: ParentComponent<{
         notificationsState,
         {
           scheduleNotification,
-          scheduleMessage,
+          scheduleSuccess,
           scheduleWarning,
           scheduleError,
+          nextNotification,
         },
       ]}
     >
+      <Show when={currentNotification()} keyed={true}>
+        {(notification) => {
+          return (
+            <div
+              style="position: absolute; z-index: 1000; width: 100vw;"
+              class="columns mt-0"
+            >
+              <div class="column is-full m-3">
+                <NotificationComponent type={notification.type}>
+                  {notification.message}
+                </NotificationComponent>
+              </div>
+            </div>
+          );
+        }}
+      </Show>
       {props.children}
     </NotificationsContext.Provider>
   );
 };
 
-const [
-  _state,
-  { scheduleNotification, scheduleMessage, scheduleWarning, scheduleError },
-] = useContext(NotificationsContext);
-
-export {
-  scheduleNotification,
-  scheduleMessage,
-  scheduleWarning,
-  scheduleError,
-};
+export const notificationsApi = () => useContext(NotificationsContext);
