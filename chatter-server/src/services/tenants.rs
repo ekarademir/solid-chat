@@ -13,24 +13,26 @@ pub struct TenantsService {}
 #[tonic::async_trait]
 impl Tenants for TenantsService {
     async fn create(&self, req: Request<Tenant>) -> Result<Response<TenantResponse>, Status> {
-        let conn = &mut commands::connect_to_pg().unwrap();
-        match commands::tenants::create_tenant(conn, req.get_ref().name.as_str()) {
-            Ok(tenant) => Ok(Response::new(TenantResponse {
-                tenant: Some(tenant.into()),
-            })),
-            Err(e) => Err(errors::into_status(e)),
-        }
+        commands::connect_and(|conn| {
+            match commands::tenants::create_tenant(conn, req.get_ref().name.as_str()) {
+                Ok(tenant) => Ok(Response::new(TenantResponse {
+                    tenant: Some(tenant.into()),
+                })),
+                Err(e) => Err(errors::into_status(e)),
+            }
+        })
     }
 
     async fn delete(
         &self,
         req: Request<TenantRequest>,
     ) -> Result<Response<TenantResponse>, Status> {
-        let conn = &mut commands::connect_to_pg().unwrap();
-        match commands::tenants::delete_tenant(conn, req.get_ref().name.as_str()) {
-            Ok(()) => Ok(Response::new(TenantResponse { tenant: None })),
-            Err(e) => Err(errors::into_status(e)),
-        }
+        commands::connect_and(|conn| {
+            match commands::tenants::delete_tenant(conn, req.get_ref().name.as_str()) {
+                Ok(()) => Ok(Response::new(TenantResponse { tenant: None })),
+                Err(e) => Err(errors::into_status(e)),
+            }
+        })
     }
 
     type ListStream = ReceiverStream<Result<Tenant, Status>>;
@@ -42,22 +44,25 @@ impl Tenants for TenantsService {
         tokio::spawn(async move {
             let list_all = req.get_ref().list_all;
             let name = req.get_ref().name.as_str();
-
-            if list_all {
-                let conn = &mut commands::connect_to_pg().unwrap();
-                let tenants = commands::tenants::list_tenants(conn).unwrap();
-                for tenant in tenants {
-                    tx.send(Ok(tenant.into())).await.unwrap();
+            match commands::connect_to_pg() {
+                Ok(mut conn) => {
+                    if list_all {
+                        match commands::tenants::list_tenants(&mut conn) {
+                            Ok(tenants) => {
+                                for tenant in tenants {
+                                    tx.send(Ok(tenant.into())).await.unwrap();
+                                }
+                            }
+                            Err(e) => tx.send(Err(errors::into_status(e))).await.unwrap(),
+                        };
+                    } else if name.len() > 0 {
+                        match commands::tenants::find_tenant(&mut conn, name) {
+                            Ok(tenant) => tx.send(Ok(tenant.into())).await.unwrap(),
+                            Err(e) => tx.send(Err(errors::into_status(e))).await.unwrap(),
+                        }
+                    }
                 }
-            } else if name.len() > 0 {
-                let conn = &mut commands::connect_to_pg().unwrap();
-                match commands::tenants::find_tenant(conn, name) {
-                    Ok(tenant) => tx.send(Ok(tenant.into())).await.unwrap(),
-                    _ => tx
-                        .send(Err(Status::not_found("Requested tenant not found")))
-                        .await
-                        .unwrap(),
-                }
+                Err(e) => tx.send(Err(errors::into_status(e))).await.unwrap(),
             }
 
             tx.send(Err(Status::ok("Empty"))).await.unwrap();

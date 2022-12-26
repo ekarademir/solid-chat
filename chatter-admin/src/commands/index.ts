@@ -1,6 +1,6 @@
 "use strict";
 import { newTenant, listTenants, deleteTenant } from "./tenants";
-import { RpcError } from "grpc-web";
+import { RpcError } from "@protobuf-ts/runtime-rpc";
 
 export default {
   tenants: {
@@ -11,8 +11,8 @@ export default {
 };
 
 export function errorMessage(err: Error | RpcError) {
+  const message = decodeURI(err.message);
   if (err instanceof RpcError) {
-    const message = decodeURI(err.message);
     switch (`${err.code}`) {
       case "OK":
         return `${message}`;
@@ -52,6 +52,6 @@ export function errorMessage(err: Error | RpcError) {
         return "Unknown error.";
     }
   } else {
-    return err.message;
+    return message;
   }
 }

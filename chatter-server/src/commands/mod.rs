@@ -5,6 +5,7 @@ use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use dotenvy::dotenv;
 use std::env;
+use tonic::{Response, Status};
 use tracing::{span, Level};
 
 pub fn connect_to_pg() -> Result<PgConnection> {
@@ -18,4 +19,15 @@ pub fn connect_to_pg() -> Result<PgConnection> {
 
     connect_to_pg_span.exit();
     Ok(conn)
+}
+
+pub fn connect_and<T, F>(f: F) -> Result<Response<T>, Status>
+where
+    F: Fn(&mut PgConnection) -> Result<Response<T>, Status>,
+{
+    if let Ok(conn) = &mut connect_to_pg() {
+        f(conn)
+    } else {
+        Err(Status::internal("Internal server error"))
+    }
 }
