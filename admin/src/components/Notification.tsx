@@ -3,6 +3,7 @@ import { ParentComponent } from "solid-js";
 import { NotificationType } from "../lib/Notifications";
 
 export interface NotificationProps {
+  deleteAction: () => void;
   type?: NotificationType;
   message?: string;
 }
@@ -17,7 +18,7 @@ const Notification: ParentComponent<NotificationProps> = (props) => {
         "is-success": props.type === NotificationType.SUCCESS || !props.type,
       }}
     >
-      <button class="delete"></button>
+      <button onClick={() => props.deleteAction()} class="delete"></button>
       {props.children || props.message}
     </div>
   );

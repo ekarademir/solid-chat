@@ -125,12 +125,16 @@ export const NotificationsProvider: ParentComponent<{
   const [currentNotification, setCurrentNotification] =
     createSignal<Notification>();
 
+  let consumeTimeout;
+
   const consumeNotifications = () => {
+    if (consumeTimeout) clearTimeout(consumeTimeout);
     setCurrentNotification();
+
     const nextOne = nextNotification();
     if (nextOne) {
       setCurrentNotification(nextOne);
-      setTimeout(
+      consumeTimeout = setTimeout(
         () => consumeNotifications(),
         props.notificationDuration ?? DEFAULT_DURATION
       );
@@ -165,7 +169,10 @@ export const NotificationsProvider: ParentComponent<{
               class="columns mt-0"
             >
               <div class="column is-full m-3">
-                <NotificationComponent type={notification.type}>
+                <NotificationComponent
+                  type={notification.type}
+                  deleteAction={consumeNotifications}
+                >
                   {notification.message}
                 </NotificationComponent>
               </div>
