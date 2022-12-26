@@ -13,39 +13,39 @@ export default {
 export function errorMessage(err: RpcError) {
   switch (`${err.code}`) {
     case "OK":
-      return `${err.message}`;
+      return `${decodeURI(err.message)}`;
     case "CANCELLED":
-      return `${err.message} cancelled`;
+      return `${decodeURI(err.message)} cancelled`;
     case "UNKNOWN":
-      return `${err.message}`;
+      return `${decodeURI(err.message)}`;
     case "INVALID_ARGUMENT":
-      return `Invalid argument, ${err.message}`;
+      return `Invalid argument, ${decodeURI(err.message)}`;
     case "DEADLINE_EXCEEDED":
-      return `Deadline exceeded for ${err.message}`;
+      return `Deadline exceeded for ${decodeURI(err.message)}`;
     case "NOT_FOUND":
-      return `${err.message} not found`;
+      return `${decodeURI(err.message)} not found`;
     case "ALREADY_EXISTS":
-      return `${err.message} already exists`;
+      return `${decodeURI(err.message)} already exists`;
     case "PERMISSION_DENIED":
-      return `Permission denied for ${err.message}`;
+      return `Permission denied for ${decodeURI(err.message)}`;
     case "RESOURCE_EXHAUSTED":
-      return `Enf of ${err.message}`;
+      return `Enf of ${decodeURI(err.message)}`;
     case "FAILED_PRECONDITION":
-      return `${err.message} precondition failed`;
+      return `${decodeURI(err.message)}`;
     case "ABORTED":
-      return `${err.message} aborted`;
+      return `${decodeURI(err.message)} aborted`;
     case "OUT_OF_RANGE":
-      return `${err.message} out of range`;
+      return `${decodeURI(err.message)} out of range`;
     case "UNIMPLEMENTED":
-      return `${err.message} unimplemented`;
+      return `${decodeURI(err.message)} unimplemented`;
     case "INTERNAL":
-      return `An internal error occured ${err.message}`;
+      return `An internal error occured ${decodeURI(err.message)}`;
     case "UNAVAILABLE":
-      return `${err.message} unavailable`;
+      return `${decodeURI(err.message)} unavailable`;
     case "DATA_LOSS":
-      return `Data loss with ${err.message}`;
+      return `Data loss with ${decodeURI(err.message)}`;
     case "UNAUTHENTICATED":
-      return `${err.message} is unauthenticated`;
+      return `${decodeURI(err.message)} is unauthenticated`;
     default:
       return "Unknown error.";
   }
