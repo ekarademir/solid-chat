@@ -11,11 +11,17 @@ import { notificationsApi } from "../../lib/Notifications";
 import { errorMessage } from "../../commands/";
 
 const Tenants: Component = () => {
-  const [tenants, { refetch }] = createResource(commands.tenants.listTenants);
-  const [tenantName, setTenantName] = createSignal("");
-  const [openNewTenantModal, setOpenNewTenantModal] = createSignal(false);
   const [_state, { scheduleError, scheduleSuccess, scheduleWarning }] =
     notificationsApi();
+
+  const fetchTenants = async () => {
+    try {
+      return await commands.tenants.listTenants();
+    } catch (e) {
+      scheduleError(errorMessage(e));
+      return [];
+    }
+  };
 
   const saveTenant = () => {
     const name = tenantName();
@@ -36,6 +42,10 @@ const Tenants: Component = () => {
       .catch((e) => scheduleError(errorMessage(e)))
       .then(refetch);
   };
+
+  const [tenants, { refetch }] = createResource(fetchTenants);
+  const [tenantName, setTenantName] = createSignal("");
+  const [openNewTenantModal, setOpenNewTenantModal] = createSignal(false);
 
   return (
     <>
