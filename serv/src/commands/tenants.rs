@@ -2,6 +2,7 @@ use anyhow::{Context, Result};
 use diesel::{pg::PgConnection, QueryDsl, RunQueryDsl, TextExpressionMethods};
 use tracing::{span, Level};
 
+use crate::errors;
 use crate::models::tenant::{NewTenant, TenantModel};
 use crate::schema::tenants;
 
@@ -28,7 +29,7 @@ pub fn find_tenant(conn: &mut PgConnection, name: &str) -> Result<TenantModel> {
     let result = tenants::dsl::tenants
         .filter(tenants::columns::tenant_name.like(tenant_name_filter))
         .first(conn)
-        .context(format!("Can not find tenant, {}", name))?;
+        .context(name.to_string())?;
 
     find_tenant_span.exit();
 
@@ -38,9 +39,7 @@ pub fn find_tenant(conn: &mut PgConnection, name: &str) -> Result<TenantModel> {
 pub fn list_tenants(conn: &mut PgConnection) -> Result<Vec<TenantModel>> {
     let list_tenant_span = span!(Level::INFO, "list_tenant").entered();
 
-    let result = tenants::dsl::tenants
-        .load::<TenantModel>(conn)
-        .context(format!("Can not list tenants"))?;
+    let result = tenants::dsl::tenants.load::<TenantModel>(conn)?;
 
     list_tenant_span.exit();
 
@@ -50,11 +49,17 @@ pub fn list_tenants(conn: &mut PgConnection) -> Result<Vec<TenantModel>> {
 pub fn delete_tenant(conn: &mut PgConnection, name: &str) -> Result<()> {
     let delete_tenant_span = span!(Level::INFO, "delete_tenant").entered();
 
+    if name == "chatter" {
+        return Err(anyhow::Error::new(
+            errors::ServiceErrors::CannotDeleteDefaultTenant,
+        ));
+    }
+
     let tenant_name_filter = format!("%{}%", name);
 
     diesel::delete(tenants::table.filter(tenants::columns::tenant_name.like(tenant_name_filter)))
         .execute(conn)
-        .context(format!("Can not delete tenant, {}", name))?;
+        .context(name.to_string())?;
 
     delete_tenant_span.exit();
     Ok(())
