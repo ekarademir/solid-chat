@@ -1,8 +1,6 @@
-import { Component } from "solid-js";
+import { ParentComponent } from "solid-js";
 
-import { ChildrenProps } from "../common/types";
-
-const FormMatter: Component<ChildrenProps> = (props) => {
+const FormMatter: ParentComponent = (props) => {
   return <div class="container form-matter pt-2">{props.children}</div>;
 };
 

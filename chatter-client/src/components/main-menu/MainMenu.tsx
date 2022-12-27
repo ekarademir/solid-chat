@@ -1,8 +1,6 @@
-import { Component, JSXElement } from "solid-js";
+import { ParentComponent } from "solid-js";
 
-import { ChildrenProps } from "../common/types";
-
-const MainMenu: Component<ChildrenProps> = (props) => {
+const MainMenu: ParentComponent = (props) => {
   return (
     <div class="column is-2 is-narrow-mobile m-0 p-0">{props.children}</div>
   );

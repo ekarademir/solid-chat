@@ -1,8 +1,6 @@
-import { Component } from "solid-js";
+import { ParentComponent } from "solid-js";
 
-import { ChildrenProps } from "../common/types";
-
-const ChannelMatter: Component<ChildrenProps> = (props) => {
+const ChannelMatter: ParentComponent = (props) => {
   return <div class="container channel-matter">{props.children}</div>;
 };
 

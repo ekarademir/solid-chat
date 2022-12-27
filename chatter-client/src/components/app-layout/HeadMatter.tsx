@@ -1,8 +1,6 @@
-import { Component } from "solid-js";
+import { ParentComponent } from "solid-js";
 
-import { ChildrenProps } from "../common/types";
-
-const HeadMatter: Component<ChildrenProps> = (props) => {
+const HeadMatter: ParentComponent = (props) => {
   return <div class="container head-matter">{props.children}</div>;
 };
 
