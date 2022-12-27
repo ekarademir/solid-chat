@@ -1,6 +1,4 @@
-use diesel::expression::Expression;
 use diesel::prelude::*;
-use diesel::sql_types::Integer;
 
 use crate::chat::Tenant;
 use crate::chat::User;
@@ -8,18 +6,14 @@ use crate::chat::UserKind as ProtoUserKind;
 use crate::schema::users;
 pub type UserKind = ProtoUserKind;
 
-impl Expression for UserKind {
-    type SqlType = Integer;
-}
-
 #[derive(Queryable)]
 pub struct UserModel {
     pub id: uuid::Uuid,
     pub username: String,
-    pub fullname: String,
+    pub fullname: Option<String>,
     pub password: String,
-    pub kind: UserKind,
-    pub tenant: Tenant,
+    pub kind: i32,
+    pub tenant_id: i32,
 }
 
 impl Into<User> for UserModel {
@@ -28,8 +22,8 @@ impl Into<User> for UserModel {
             id: self.id.braced().to_string(),
             username: self.username,
             fullname: self.fullname,
-            kind: self.kind as i32,
-            tenant: Some(self.tenant),
+            kind: self.kind,
+            tenant: None,
         }
     }
 }
@@ -39,6 +33,6 @@ impl Into<User> for UserModel {
 pub struct NewUser<'a> {
     pub username: &'a str,
     pub fullname: Option<&'a str>,
-    pub kind: UserKind,
+    pub kind: i32,
     pub tenant_id: i32,
 }

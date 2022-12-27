@@ -13,6 +13,7 @@ use tonic::transport::{Identity, Server, ServerTlsConfig};
 use tower_http::cors::{Any, CorsLayer};
 
 use crate::services::tenants::{TenantsServer, TenantsService};
+use crate::services::users_admin::{UsersAdminServer, UsersAdminService};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -24,6 +25,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 async fn listen(addr: std::net::SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
     let tenants_service = TenantsServer::new(TenantsService::default());
+    let users_admin_service = UsersAdminServer::new(UsersAdminService::default());
 
     // TLS
     let key = std::fs::read_to_string("../ssl/key.pem")?;
@@ -57,6 +59,7 @@ async fn listen(addr: std::net::SocketAddr) -> Result<(), Box<dyn std::error::Er
         .layer(cors)
         .layer(tonic_web::GrpcWebLayer::new())
         .add_service(tenants_service)
+        .add_service(users_admin_service)
         .serve(addr)
         .await?;
 

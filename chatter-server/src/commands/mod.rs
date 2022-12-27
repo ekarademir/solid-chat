@@ -1,5 +1,3 @@
-pub mod tenants;
-
 use anyhow::{Context, Result};
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
@@ -7,6 +5,9 @@ use dotenvy::dotenv;
 use std::env;
 use tonic::{Response, Status};
 use tracing::{span, Level};
+
+pub mod tenants;
+pub mod users;
 
 pub fn connect_to_pg() -> Result<PgConnection> {
     let connect_to_pg_span = span!(Level::DEBUG, "connect_to_pg").entered();

@@ -49,9 +49,9 @@ enum UserKind {
 message User {
   Tenant tenant = 1;
   string id = 2;
-  string fullname = 3;
   string username = 4;
   UserKind kind = 5;
+  optional string fullname = 3;
 }
 
 message UserAdminRequest {
