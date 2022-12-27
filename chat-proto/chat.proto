@@ -49,7 +49,7 @@ enum UserKind {
 message User {
   Tenant tenant = 1;
   string id = 2;
-  string name = 3;
+  string fullname = 3;
   string username = 4;
   UserKind kind = 5;
 }
