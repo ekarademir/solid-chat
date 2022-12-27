@@ -5,18 +5,25 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "serve": "vite preview"
+    "serve": "vite preview",
+    "refresh-proto": "npx protoc --ts_out src/chat --proto_path ../chat-proto ../chat-proto/chat.proto"
   },
   "license": "MIT",
   "devDependencies": {
     "sass": "^1.54.5",
+    "solid-devtools": "^0.24.3",
     "typescript": "^4.8.2",
     "vite": "^3.0.9",
     "vite-plugin-solid": "^2.3.0"
   },
   "dependencies": {
+    "@protobuf-ts/grpcweb-transport": "^2.8.2",
+    "@protobuf-ts/plugin": "^2.8.2",
+    "@protobuf-ts/runtime": "^2.8.2",
+    "@solidjs/router": "^0.5.1",
     "bulma": "^0.9.4",
     "solid-icons": "^1.0.4",
-    "solid-js": "^1.5.1"
+    "solid-js": "^1.5.1",
+    "solid-transition-group": "^0.0.12"
   }
 }
