@@ -1,6 +1,6 @@
 import { ParentComponent } from "solid-js";
 
-import { NotificationType } from "../lib/Notifications";
+import { NotificationType } from "../lib/notifications/Notifications";
 
 export interface NotificationProps {
   cancelAction: () => void;

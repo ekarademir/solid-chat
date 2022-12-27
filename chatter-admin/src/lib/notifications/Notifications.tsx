@@ -10,8 +10,9 @@ import {
 import { createStore } from "solid-js/store";
 import { Transition } from "solid-transition-group";
 
-import NotificationComponent from "../components/Notification";
-import { pause } from "./utils";
+import NotificationComponent from "../../components/Notification";
+import { pause } from "../utils";
+import "./notifications.scss";
 
 const DEFAULT_DURATION = 3000; // ms
 
@@ -139,6 +140,7 @@ export const NotificationsProvider: ParentComponent<{
       setAnimation(true);
       await pause(duration - 500);
       setAnimation(false);
+      // Allow time for fade away animation
       await pause(500);
       await consumeNotifications();
     }

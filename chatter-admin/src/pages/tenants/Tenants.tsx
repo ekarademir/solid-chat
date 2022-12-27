@@ -7,7 +7,7 @@ import commands from "../../commands/";
 import Loading from "../../lib/Loading";
 import Modal from "../../components/Modal";
 import Table from "../../components/Table";
-import { notificationsApi } from "../../lib/Notifications";
+import { notificationsApi } from "../../lib/notifications/Notifications";
 import { errorMessage } from "../../commands/";
 
 const Tenants: Component = () => {
