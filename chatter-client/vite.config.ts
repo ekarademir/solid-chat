@@ -10,7 +10,7 @@ export default defineConfig({
     }),
   ],
   server: {
-    port: 8000,
+    port: 3000,
     host: "rotatingwave.local",
     https: {
       key: "../ssl/key.pem",
