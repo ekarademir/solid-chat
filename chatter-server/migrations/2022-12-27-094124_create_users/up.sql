@@ -1,6 +1,6 @@
 -- Your SQL goes here
 CREATE TABLE users (
-  id SERIAL PRIMARY KEY,
+  id UUID PRIMARY KEY,
   username VARCHAR NOT NULL,
   fullname VARCHAR,
   password VARCHAR NOT NULL,

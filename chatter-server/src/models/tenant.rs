@@ -1,5 +1,7 @@
-use crate::schema::tenants;
 use diesel::prelude::*;
+
+use crate::chat::Tenant;
+use crate::schema::tenants;
 
 #[derive(Queryable)]
 pub struct TenantModel {
@@ -7,9 +9,9 @@ pub struct TenantModel {
     pub tenant_name: String,
 }
 
-impl Into<crate::chat::Tenant> for TenantModel {
-    fn into(self) -> crate::chat::Tenant {
-        crate::chat::Tenant {
+impl Into<Tenant> for TenantModel {
+    fn into(self) -> Tenant {
+        Tenant {
             name: self.tenant_name,
             id: self.id,
         }
