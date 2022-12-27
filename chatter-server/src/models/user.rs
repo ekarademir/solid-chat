@@ -23,7 +23,6 @@ impl Into<User> for UserModel {
             username: self.username,
             fullname: self.fullname,
             kind: self.kind,
-            tenant: None,
         }
     }
 }
