@@ -23,6 +23,7 @@
     "@solidjs/router": "^0.5.1",
     "bulma": "^0.9.4",
     "solid-icons": "^1.0.4",
-    "solid-js": "^1.5.1"
+    "solid-js": "^1.5.1",
+    "solid-transition-group": "^0.0.12"
   }
 }

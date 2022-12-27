@@ -8,10 +8,12 @@ import {
   useContext,
 } from "solid-js";
 import { createStore } from "solid-js/store";
+import { Transition } from "solid-transition-group";
 
 import NotificationComponent from "../components/Notification";
+import { pause } from "./utils";
 
-const DEFAULT_DURATION = 2000; // ms
+const DEFAULT_DURATION = 3000; // ms
 
 export enum NotificationStatus {
   SCHEDULED,
@@ -124,20 +126,21 @@ export const NotificationsProvider: ParentComponent<{
 
   const [currentNotification, setCurrentNotification] =
     createSignal<Notification>();
+  const [animation, setAnimation] = createSignal(true);
 
-  let consumeTimeout;
+  const consumeNotifications = async () => {
+    const duration = props.notificationDuration ?? DEFAULT_DURATION;
 
-  const consumeNotifications = () => {
-    if (consumeTimeout) clearTimeout(consumeTimeout);
     setCurrentNotification();
 
     const nextOne = nextNotification();
     if (nextOne) {
       setCurrentNotification(nextOne);
-      consumeTimeout = setTimeout(
-        () => consumeNotifications(),
-        props.notificationDuration ?? DEFAULT_DURATION
-      );
+      setAnimation(true);
+      await pause(duration - 500);
+      setAnimation(false);
+      await pause(500);
+      await consumeNotifications();
     }
   };
 
@@ -169,12 +172,16 @@ export const NotificationsProvider: ParentComponent<{
               class="columns mt-0"
             >
               <div class="column is-full m-3">
-                <NotificationComponent
-                  type={notification.type}
-                  cancelAction={consumeNotifications}
-                >
-                  {notification.message}
-                </NotificationComponent>
+                <Transition name="fade" appear={true}>
+                  {animation() && (
+                    <NotificationComponent
+                      type={notification.type}
+                      cancelAction={consumeNotifications}
+                    >
+                      {notification.message}
+                    </NotificationComponent>
+                  )}
+                </Transition>
               </div>
             </div>
           );
