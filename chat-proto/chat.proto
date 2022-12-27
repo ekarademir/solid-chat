@@ -2,10 +2,13 @@ syntax = "proto3";
 
 package chat;
 
-service Tenants {
-  rpc Create(Tenant) returns (TenantResponse) {}
-  rpc List(TenantRequest) returns (stream Tenant) {}
-  rpc Delete(TenantRequest) returns (TenantResponse) {}
+//
+// Tenants
+//
+
+message Tenant {
+  int32 id = 1;
+  string name = 2;
 }
 
 message TenantRequest {
@@ -14,10 +17,52 @@ message TenantRequest {
 }
 
 message TenantResponse {
-  Tenant tenant = 3;
+  Tenant tenant = 1;
 }
 
-message Tenant {
-  int32 id = 1;
-  string name = 2;
+service Tenants {
+  rpc Create(Tenant) returns (TenantResponse) {}
+  rpc List(TenantRequest) returns (stream Tenant) {}
+  rpc Delete(TenantRequest) returns (TenantResponse) {}
 }
+
+//
+// /Tenants
+//
+
+//
+// Users
+//
+service UsersAdmin {
+  rpc Create(User) returns (UserAdminResponse) {}
+  rpc List(UserAdminRequest) returns (stream User) {}
+  rpc Delete(UserAdminRequest) returns (UserAdminResponse) {}
+  rpc Update(UserAdminRequest) returns (UserAdminResponse) {}
+}
+
+enum UserKind {
+  VISITOR = 0;
+  INVITEE = 1;
+  REGISTERED = 2;
+}
+
+message User {
+  Tenant tenant = 1;
+  string id = 2;
+  string name = 3;
+  string username = 4;
+  UserKind kind = 5;
+}
+
+message UserAdminRequest {
+  bool list_all = 1;
+  string username = 2;
+}
+
+message UserAdminResponse {
+  User user = 1;
+}
+
+//
+// /Users
+//
