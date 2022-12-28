@@ -3,10 +3,10 @@ use diesel::{pg::PgConnection, QueryDsl, RunQueryDsl, TextExpressionMethods};
 use tracing::{span, Level};
 
 use crate::errors;
-use crate::models::tenant::{NewTenant, TenantModel};
+use crate::models::tenant::{NewTenant, Tenant};
 use crate::schema::tenants;
 
-pub fn create_tenant(conn: &mut PgConnection, tenant_name: &str) -> Result<TenantModel> {
+pub fn create_tenant(conn: &mut PgConnection, tenant_name: &str) -> Result<Tenant> {
     let create_tenant_span = span!(Level::INFO, "create_tenant").entered();
 
     let new_tenant = NewTenant { tenant_name };
@@ -21,7 +21,7 @@ pub fn create_tenant(conn: &mut PgConnection, tenant_name: &str) -> Result<Tenan
     Ok(result)
 }
 
-pub fn find_tenant(conn: &mut PgConnection, name: &str) -> Result<TenantModel> {
+pub fn find_tenant(conn: &mut PgConnection, name: &str) -> Result<Tenant> {
     let find_tenant_span = span!(Level::INFO, "find_tenant").entered();
 
     let tenant_name_filter = format!("%{}%", name);
@@ -36,10 +36,10 @@ pub fn find_tenant(conn: &mut PgConnection, name: &str) -> Result<TenantModel> {
     Ok(result)
 }
 
-pub fn list_tenants(conn: &mut PgConnection) -> Result<Vec<TenantModel>> {
+pub fn list_tenants(conn: &mut PgConnection) -> Result<Vec<Tenant>> {
     let list_tenant_span = span!(Level::INFO, "list_tenant").entered();
 
-    let result = tenants::dsl::tenants.load::<TenantModel>(conn)?;
+    let result = tenants::dsl::tenants.load::<Tenant>(conn)?;
 
     list_tenant_span.exit();
 

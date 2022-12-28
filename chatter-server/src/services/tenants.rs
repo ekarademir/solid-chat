@@ -2,8 +2,9 @@ use tokio_stream::wrappers::ReceiverStream;
 use tonic::{Request, Response, Status};
 
 use crate::chat::{tenants_server::Tenants, Tenant, TenantRequest, TenantResponse};
-use crate::commands;
 use crate::errors;
+use crate::models::tenant::NewTenant;
+use crate::models::tenant::Tenant as TenantModel;
 
 pub use crate::chat::tenants_server::TenantsServer;
 
@@ -13,23 +14,27 @@ pub struct TenantsService {}
 #[tonic::async_trait]
 impl Tenants for TenantsService {
     async fn create(&self, req: Request<Tenant>) -> Result<Response<TenantResponse>, Status> {
-        commands::connect_and(|conn| {
-            match commands::tenants::create_tenant(conn, req.get_ref().name.as_str()) {
+        super::connect_and(
+            |conn| match NewTenant::new(req.get_ref().name.as_str()).create(conn) {
                 Ok(tenant) => Ok(Response::new(TenantResponse {
                     tenant: Some(tenant.into()),
                 })),
                 Err(e) => Err(errors::into_status(e)),
-            }
-        })
+            },
+        )
     }
 
     async fn delete(
         &self,
         req: Request<TenantRequest>,
     ) -> Result<Response<TenantResponse>, Status> {
-        commands::connect_and(|conn| {
-            match commands::tenants::delete_tenant(conn, req.get_ref().name.as_str()) {
-                Ok(()) => Ok(Response::new(TenantResponse { tenant: None })),
+        super::connect_and(|conn| {
+            let name = req.get_ref().name.as_str();
+            match TenantModel::find_by_name(conn, name) {
+                Ok(tenant) => match tenant.delete(conn) {
+                    Ok(()) => Ok(Response::new(TenantResponse { tenant: None })),
+                    Err(e) => Err(errors::into_status(e)),
+                },
                 Err(e) => Err(errors::into_status(e)),
             }
         })
@@ -44,10 +49,10 @@ impl Tenants for TenantsService {
         tokio::spawn(async move {
             let list_all = req.get_ref().list_all;
             let name = req.get_ref().name.as_str();
-            match commands::connect_to_pg() {
+            match super::connect_to_pg() {
                 Ok(mut conn) => {
                     if list_all {
-                        match commands::tenants::list_tenants(&mut conn) {
+                        match TenantModel::list(&mut conn) {
                             Ok(tenants) => {
                                 for tenant in tenants {
                                     tx.send(Ok(tenant.into())).await.unwrap();
@@ -56,7 +61,7 @@ impl Tenants for TenantsService {
                             Err(e) => tx.send(Err(errors::into_status(e))).await.unwrap(),
                         };
                     } else if name.len() > 0 {
-                        match commands::tenants::find_tenant(&mut conn, name) {
+                        match TenantModel::find_by_name(&mut conn, name) {
                             Ok(tenant) => tx.send(Ok(tenant.into())).await.unwrap(),
                             Err(e) => tx.send(Err(errors::into_status(e))).await.unwrap(),
                         }
