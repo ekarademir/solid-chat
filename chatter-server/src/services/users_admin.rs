@@ -25,13 +25,13 @@ impl UsersAdmin for UsersAdminService {
                 .create(conn)
                 {
                     Ok(user) => Ok(Response::new(UserAdminResponse {
-                        user: Some(user.proto(&tenant)),
+                        user: Some(user.into_proto(&tenant)),
                     })),
                     Err(e) => Err(errors::into_status(e)),
                 }
             } else {
                 Err(errors::into_status(anyhow::Error::new(
-                    errors::ServiceErrors::CannotDeleteDefaultTenant,
+                    errors::ServiceErrors::TenantDoesNotExist,
                 )))
             }
         })

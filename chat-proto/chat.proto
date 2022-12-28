@@ -57,6 +57,7 @@ message User {
 message UserAdminRequest {
   bool list_all = 1;
   string username = 2;
+  string tenant_name = 5;
 }
 
 message UserAdminResponse {

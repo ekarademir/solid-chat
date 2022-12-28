@@ -15,6 +15,9 @@ pub fn into_status(err: anyhow::Error) -> Status {
                 Some(ServiceErrors::CannotDeleteDefaultTenant) => {
                     Status::failed_precondition("Can't delete the default tenant")
                 }
+                Some(ServiceErrors::TenantDoesNotExist) => {
+                    Status::failed_precondition("Tenant does not exist")
+                }
                 _ => Status::unknown(format!("{:?}", err)),
             },
         },
@@ -25,4 +28,6 @@ pub fn into_status(err: anyhow::Error) -> Status {
 pub enum ServiceErrors {
     #[error("Can not delete the default tenant")]
     CannotDeleteDefaultTenant,
+    #[error("Tenant does not exist")]
+    TenantDoesNotExist,
 }

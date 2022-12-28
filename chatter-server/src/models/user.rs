@@ -19,7 +19,17 @@ pub struct User {
 }
 
 impl User {
-    pub fn proto(&self, tenant: &Tenant) -> ProtoUser {
+    pub fn find(conn: &mut PgConnection, id: uuid::Uuid) -> Result<User> {
+        users::table.find(id).first(conn).context(id)
+    }
+
+    pub fn list(conn: &mut PgConnection, tenant: &Tenant) -> Result<Vec<User>> {
+        User::belonging_to(tenant)
+            .load::<User>(conn)
+            .context(format!("list for {}", tenant.tenant_name))
+    }
+
+    pub fn into_proto(&self, tenant: &Tenant) -> ProtoUser {
         ProtoUser {
             username: self.username.clone(),
             fullname: self.fullname.clone(),
