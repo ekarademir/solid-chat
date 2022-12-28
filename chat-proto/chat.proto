@@ -51,6 +51,7 @@ message User {
   string username = 2;
   UserKind kind = 3;
   optional string fullname = 4;
+  string tenant_name = 5;
 }
 
 message UserAdminRequest {

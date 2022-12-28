@@ -1,13 +1,15 @@
+use anyhow::{Context, Result};
 use diesel::prelude::*;
 
-use crate::chat::Tenant;
-use crate::chat::User;
+use crate::chat::User as ProtoUser;
 use crate::chat::UserKind as ProtoUserKind;
 use crate::schema::users;
-pub type UserKind = ProtoUserKind;
 
-#[derive(Queryable)]
-pub struct UserModel {
+use super::tenant::Tenant;
+
+#[derive(Clone, Debug, PartialEq, Eq, Queryable, Identifiable, Associations)]
+#[diesel(belongs_to(Tenant))]
+pub struct User {
     pub id: uuid::Uuid,
     pub username: String,
     pub fullname: Option<String>,
@@ -16,22 +18,47 @@ pub struct UserModel {
     pub tenant_id: i32,
 }
 
-impl Into<User> for UserModel {
-    fn into(self) -> User {
-        User {
-            id: self.id.braced().to_string(),
-            username: self.username,
-            fullname: self.fullname,
+impl User {
+    pub fn proto(&self, tenant: &Tenant) -> ProtoUser {
+        ProtoUser {
+            username: self.username.clone(),
+            fullname: self.fullname.clone(),
             kind: self.kind,
+            id: self.id.braced().to_string(),
+            tenant_name: tenant.tenant_name.clone(),
         }
     }
 }
 
-#[derive(Insertable)]
+#[derive(Debug, Default, Insertable, Associations)]
+#[diesel(belongs_to(Tenant))]
 #[diesel(table_name = users)]
 pub struct NewUser<'a> {
     pub username: &'a str,
     pub fullname: Option<&'a str>,
     pub kind: i32,
     pub tenant_id: i32,
+}
+
+impl<'a> NewUser<'a> {
+    pub fn new(
+        username: &'a str,
+        fullname: Option<&'a str>,
+        kind: ProtoUserKind,
+        tenant: &'a Tenant,
+    ) -> Self {
+        NewUser {
+            username,
+            fullname,
+            kind: kind as i32,
+            tenant_id: tenant.id,
+        }
+    }
+
+    pub fn create(&self, conn: &mut PgConnection) -> Result<User> {
+        diesel::insert_into(users::table)
+            .values(self)
+            .get_result(conn)
+            .context(self.username.to_string())
+    }
 }

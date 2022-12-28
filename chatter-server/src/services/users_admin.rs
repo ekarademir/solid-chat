@@ -2,9 +2,8 @@ use tokio_stream::wrappers::ReceiverStream;
 use tonic::{Request, Response, Status};
 
 use crate::chat::{users_admin_server::UsersAdmin, User, UserAdminRequest, UserAdminResponse};
-use crate::commands;
 use crate::errors;
-use crate::models::user::{NewUser, UserKind};
+use crate::models::{tenant::Tenant, user::NewUser};
 
 pub use crate::chat::users_admin_server::UsersAdminServer;
 
@@ -14,17 +13,27 @@ pub struct UsersAdminService {}
 #[tonic::async_trait]
 impl UsersAdmin for UsersAdminService {
     async fn create(&self, req: Request<User>) -> Result<Response<UserAdminResponse>, Status> {
-        let new_user = NewUser {
-            username: req.get_ref().username.as_str(),
-            fullname: Some(req.get_ref().fullname()),
-            kind: req.get_ref().kind,
-            tenant_id: 1,
-        };
-        commands::connect_and(|conn| match commands::users::create_user(conn, &new_user) {
-            Ok(user) => Ok(Response::new(UserAdminResponse {
-                user: Some(user.into()),
-            })),
-            Err(e) => Err(errors::into_status(e)),
+        super::connect_and(|conn| {
+            let payload = req.get_ref();
+            if let Ok(tenant) = Tenant::find_by_name(conn, &payload.tenant_name) {
+                match NewUser::new(
+                    &payload.username,
+                    Some(payload.fullname()),
+                    payload.kind(),
+                    &tenant,
+                )
+                .create(conn)
+                {
+                    Ok(user) => Ok(Response::new(UserAdminResponse {
+                        user: Some(user.proto(&tenant)),
+                    })),
+                    Err(e) => Err(errors::into_status(e)),
+                }
+            } else {
+                Err(errors::into_status(anyhow::Error::new(
+                    errors::ServiceErrors::CannotDeleteDefaultTenant,
+                )))
+            }
         })
     }
 

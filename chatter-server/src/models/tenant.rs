@@ -12,6 +12,15 @@ pub struct Tenant {
     pub tenant_name: String,
 }
 
+impl Default for Tenant {
+    fn default() -> Self {
+        Tenant {
+            id: 0,
+            tenant_name: String::from("chatter"),
+        }
+    }
+}
+
 impl Tenant {
     pub fn find(conn: &mut PgConnection, id: i32) -> Result<Tenant> {
         tenants::table.find(id).first(conn).context(id)
@@ -50,7 +59,7 @@ impl Into<ProtoTenant> for Tenant {
     }
 }
 
-#[derive(Insertable)]
+#[derive(Debug, Default, Insertable)]
 #[diesel(table_name = tenants)]
 pub struct NewTenant<'a> {
     pub tenant_name: &'a str,
