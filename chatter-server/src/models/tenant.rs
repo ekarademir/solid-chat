@@ -1,10 +1,9 @@
 use anyhow::{Context, Result};
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
-use diesel::result::Error as DieselError;
 
 use crate::chat::Tenant as ProtoTenant;
-use crate::commands;
+use crate::errors;
 use crate::schema::tenants;
 
 #[derive(Clone, Debug, PartialEq, Eq, Queryable, Identifiable)]
@@ -30,6 +29,11 @@ impl Tenant {
     }
 
     pub fn delete(&self, conn: &mut PgConnection) -> Result<()> {
+        if self.tenant_name == "chatter" {
+            return Err(anyhow::Error::new(
+                errors::ServiceErrors::CannotDeleteDefaultTenant,
+            ));
+        }
         diesel::delete(self)
             .execute(conn)
             .context(self.tenant_name.clone())?;

@@ -6,7 +6,6 @@ use std::env;
 use tonic::{Response, Status};
 use tracing::{span, Level};
 
-pub mod tenants;
 pub mod users;
 
 pub fn connect_to_pg() -> Result<PgConnection> {
