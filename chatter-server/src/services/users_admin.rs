@@ -57,6 +57,13 @@ impl UsersAdmin for UsersAdminService {
                                 Ok(user) => tx.send(Ok(user.into_proto(&tenant))).await.unwrap(),
                                 Err(e) => tx.send(Err(errors::into_status(e))).await.unwrap(),
                             }
+                        } else {
+                            tx.send(Err(errors::into_status(
+                                anyhow::Error::new(errors::ServiceErrors::EmptyRequestFields)
+                                    .context("list_all, username"),
+                            )))
+                            .await
+                            .unwrap();
                         }
                     } else {
                         tx.send(Err(errors::into_status(anyhow::Error::new(
@@ -68,12 +75,6 @@ impl UsersAdmin for UsersAdminService {
                 }
                 Err(e) => tx.send(Err(errors::into_status(e))).await.unwrap(),
             }
-            tx.send(Err(errors::into_status(
-                anyhow::Error::new(errors::ServiceErrors::EmptyRequestFields)
-                    .context("list_all, username"),
-            )))
-            .await
-            .unwrap();
         });
         Ok(Response::new(ReceiverStream::new(rx)))
     }

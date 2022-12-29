@@ -63,17 +63,17 @@ impl Tenants for TenantsService {
                             Ok(tenant) => tx.send(Ok(tenant.into())).await.unwrap(),
                             Err(e) => tx.send(Err(errors::into_status(e))).await.unwrap(),
                         }
+                    } else {
+                        tx.send(Err(errors::into_status(
+                            anyhow::Error::new(errors::ServiceErrors::EmptyRequestFields)
+                                .context("list_all, name"),
+                        )))
+                        .await
+                        .unwrap();
                     }
                 }
                 Err(e) => tx.send(Err(errors::into_status(e))).await.unwrap(),
             }
-
-            tx.send(Err(errors::into_status(
-                anyhow::Error::new(errors::ServiceErrors::EmptyRequestFields)
-                    .context("list_all, name"),
-            )))
-            .await
-            .unwrap();
         });
 
         Ok(Response::new(ReceiverStream::new(rx)))
