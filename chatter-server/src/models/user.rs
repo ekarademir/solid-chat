@@ -23,6 +23,17 @@ impl User {
         users::table.find(id).first(conn).context(id)
     }
 
+    pub fn find_by_username(
+        conn: &mut PgConnection,
+        tenant: &Tenant,
+        username: &str,
+    ) -> Result<User> {
+        User::belonging_to(tenant)
+            .filter(users::columns::username.eq(username))
+            .first(conn)
+            .context(username.to_string())
+    }
+
     pub fn list(conn: &mut PgConnection, tenant: &Tenant) -> Result<Vec<User>> {
         User::belonging_to(tenant)
             .load::<User>(conn)

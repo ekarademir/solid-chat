@@ -18,6 +18,9 @@ pub fn into_status(err: anyhow::Error) -> Status {
                 Some(ServiceErrors::TenantDoesNotExist) => {
                     Status::failed_precondition("Tenant does not exist")
                 }
+                Some(ServiceErrors::EmptyRequestFields) => {
+                    Status::failed_precondition(format!("Empty request fields {}", err))
+                }
                 _ => Status::unknown(format!("{:?}", err)),
             },
         },
@@ -30,4 +33,6 @@ pub enum ServiceErrors {
     CannotDeleteDefaultTenant,
     #[error("Tenant does not exist")]
     TenantDoesNotExist,
+    #[error("At least one of the fields should be defined")]
+    EmptyRequestFields,
 }

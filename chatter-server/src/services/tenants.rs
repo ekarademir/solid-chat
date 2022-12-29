@@ -15,7 +15,7 @@ pub struct TenantsService {}
 impl Tenants for TenantsService {
     async fn create(&self, req: Request<Tenant>) -> Result<Response<TenantResponse>, Status> {
         super::connect_and(
-            |conn| match NewTenant::new(req.get_ref().name.as_str()).create(conn) {
+            |conn| match NewTenant::new(&req.get_ref().name).create(conn) {
                 Ok(tenant) => Ok(Response::new(TenantResponse {
                     tenant: Some(tenant.into()),
                 })),
@@ -28,16 +28,15 @@ impl Tenants for TenantsService {
         &self,
         req: Request<TenantRequest>,
     ) -> Result<Response<TenantResponse>, Status> {
-        super::connect_and(|conn| {
-            let name = req.get_ref().name.as_str();
-            match TenantModel::find_by_name(conn, name) {
+        super::connect_and(
+            |conn| match TenantModel::find_by_name(conn, &req.get_ref().name) {
                 Ok(tenant) => match tenant.delete(conn) {
                     Ok(()) => Ok(Response::new(TenantResponse { tenant: None })),
                     Err(e) => Err(errors::into_status(e)),
                 },
                 Err(e) => Err(errors::into_status(e)),
-            }
-        })
+            },
+        )
     }
 
     type ListStream = ReceiverStream<Result<Tenant, Status>>;
@@ -47,11 +46,10 @@ impl Tenants for TenantsService {
     ) -> Result<Response<Self::ListStream>, Status> {
         let (tx, rx) = tokio::sync::mpsc::channel(100);
         tokio::spawn(async move {
-            let list_all = req.get_ref().list_all;
-            let name = req.get_ref().name.as_str();
             match super::connect_to_pg() {
                 Ok(mut conn) => {
-                    if list_all {
+                    let req = req.get_ref();
+                    if req.list_all {
                         match TenantModel::list(&mut conn) {
                             Ok(tenants) => {
                                 for tenant in tenants {
@@ -60,8 +58,8 @@ impl Tenants for TenantsService {
                             }
                             Err(e) => tx.send(Err(errors::into_status(e))).await.unwrap(),
                         };
-                    } else if name.len() > 0 {
-                        match TenantModel::find_by_name(&mut conn, name) {
+                    } else if req.name.len() > 0 {
+                        match TenantModel::find_by_name(&mut conn, &req.name) {
                             Ok(tenant) => tx.send(Ok(tenant.into())).await.unwrap(),
                             Err(e) => tx.send(Err(errors::into_status(e))).await.unwrap(),
                         }
@@ -70,7 +68,12 @@ impl Tenants for TenantsService {
                 Err(e) => tx.send(Err(errors::into_status(e))).await.unwrap(),
             }
 
-            tx.send(Err(Status::ok("Empty"))).await.unwrap();
+            tx.send(Err(errors::into_status(
+                anyhow::Error::new(errors::ServiceErrors::EmptyRequestFields)
+                    .context("list_all, name"),
+            )))
+            .await
+            .unwrap();
         });
 
         Ok(Response::new(ReceiverStream::new(rx)))

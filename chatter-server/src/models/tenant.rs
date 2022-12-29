@@ -28,7 +28,7 @@ impl Tenant {
 
     pub fn find_by_name(conn: &mut PgConnection, name: &str) -> Result<Tenant> {
         tenants::dsl::tenants
-            .filter(tenants::columns::tenant_name.like(format!("%{}%", name)))
+            .filter(tenants::columns::tenant_name.eq(name))
             .first(conn)
             .context(name.to_string())
     }
