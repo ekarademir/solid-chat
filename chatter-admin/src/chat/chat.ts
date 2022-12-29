@@ -56,25 +56,25 @@ export interface TenantResponse {
  */
 export interface User {
     /**
-     * @generated from protobuf field: chat.Tenant tenant = 1;
-     */
-    tenant?: Tenant;
-    /**
-     * @generated from protobuf field: string id = 2;
+     * @generated from protobuf field: string id = 1;
      */
     id: string;
     /**
-     * @generated from protobuf field: string name = 3;
-     */
-    name: string;
-    /**
-     * @generated from protobuf field: string username = 4;
+     * @generated from protobuf field: string username = 2;
      */
     username: string;
     /**
-     * @generated from protobuf field: chat.UserKind kind = 5;
+     * @generated from protobuf field: chat.UserKind kind = 3;
      */
     kind: UserKind;
+    /**
+     * @generated from protobuf field: optional string fullname = 4;
+     */
+    fullname?: string;
+    /**
+     * @generated from protobuf field: string tenant_name = 5;
+     */
+    tenantName: string;
 }
 /**
  * @generated from protobuf message chat.UserAdminRequest
@@ -88,6 +88,10 @@ export interface UserAdminRequest {
      * @generated from protobuf field: string username = 2;
      */
     username: string;
+    /**
+     * @generated from protobuf field: string tenant_name = 5;
+     */
+    tenantName: string;
 }
 /**
  * @generated from protobuf message chat.UserAdminResponse
@@ -274,15 +278,15 @@ export const TenantResponse = new TenantResponse$Type();
 class User$Type extends MessageType<User> {
     constructor() {
         super("chat.User", [
-            { no: 1, name: "tenant", kind: "message", T: () => Tenant },
-            { no: 2, name: "id", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 3, name: "name", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 4, name: "username", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 5, name: "kind", kind: "enum", T: () => ["chat.UserKind", UserKind] }
+            { no: 1, name: "id", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "username", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "kind", kind: "enum", T: () => ["chat.UserKind", UserKind] },
+            { no: 4, name: "fullname", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 5, name: "tenant_name", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
         ]);
     }
     create(value?: PartialMessage<User>): User {
-        const message = { id: "", name: "", username: "", kind: 0 };
+        const message = { id: "", username: "", kind: 0, tenantName: "" };
         globalThis.Object.defineProperty(message, MESSAGE_TYPE, { enumerable: false, value: this });
         if (value !== undefined)
             reflectionMergePartial<User>(this, message, value);
@@ -293,20 +297,20 @@ class User$Type extends MessageType<User> {
         while (reader.pos < end) {
             let [fieldNo, wireType] = reader.tag();
             switch (fieldNo) {
-                case /* chat.Tenant tenant */ 1:
-                    message.tenant = Tenant.internalBinaryRead(reader, reader.uint32(), options, message.tenant);
-                    break;
-                case /* string id */ 2:
+                case /* string id */ 1:
                     message.id = reader.string();
                     break;
-                case /* string name */ 3:
-                    message.name = reader.string();
-                    break;
-                case /* string username */ 4:
+                case /* string username */ 2:
                     message.username = reader.string();
                     break;
-                case /* chat.UserKind kind */ 5:
+                case /* chat.UserKind kind */ 3:
                     message.kind = reader.int32();
+                    break;
+                case /* optional string fullname */ 4:
+                    message.fullname = reader.string();
+                    break;
+                case /* string tenant_name */ 5:
+                    message.tenantName = reader.string();
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -320,21 +324,21 @@ class User$Type extends MessageType<User> {
         return message;
     }
     internalBinaryWrite(message: User, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
-        /* chat.Tenant tenant = 1; */
-        if (message.tenant)
-            Tenant.internalBinaryWrite(message.tenant, writer.tag(1, WireType.LengthDelimited).fork(), options).join();
-        /* string id = 2; */
+        /* string id = 1; */
         if (message.id !== "")
-            writer.tag(2, WireType.LengthDelimited).string(message.id);
-        /* string name = 3; */
-        if (message.name !== "")
-            writer.tag(3, WireType.LengthDelimited).string(message.name);
-        /* string username = 4; */
+            writer.tag(1, WireType.LengthDelimited).string(message.id);
+        /* string username = 2; */
         if (message.username !== "")
-            writer.tag(4, WireType.LengthDelimited).string(message.username);
-        /* chat.UserKind kind = 5; */
+            writer.tag(2, WireType.LengthDelimited).string(message.username);
+        /* chat.UserKind kind = 3; */
         if (message.kind !== 0)
-            writer.tag(5, WireType.Varint).int32(message.kind);
+            writer.tag(3, WireType.Varint).int32(message.kind);
+        /* optional string fullname = 4; */
+        if (message.fullname !== undefined)
+            writer.tag(4, WireType.LengthDelimited).string(message.fullname);
+        /* string tenant_name = 5; */
+        if (message.tenantName !== "")
+            writer.tag(5, WireType.LengthDelimited).string(message.tenantName);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
@@ -350,11 +354,12 @@ class UserAdminRequest$Type extends MessageType<UserAdminRequest> {
     constructor() {
         super("chat.UserAdminRequest", [
             { no: 1, name: "list_all", kind: "scalar", T: 8 /*ScalarType.BOOL*/ },
-            { no: 2, name: "username", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+            { no: 2, name: "username", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 5, name: "tenant_name", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
         ]);
     }
     create(value?: PartialMessage<UserAdminRequest>): UserAdminRequest {
-        const message = { listAll: false, username: "" };
+        const message = { listAll: false, username: "", tenantName: "" };
         globalThis.Object.defineProperty(message, MESSAGE_TYPE, { enumerable: false, value: this });
         if (value !== undefined)
             reflectionMergePartial<UserAdminRequest>(this, message, value);
@@ -370,6 +375,9 @@ class UserAdminRequest$Type extends MessageType<UserAdminRequest> {
                     break;
                 case /* string username */ 2:
                     message.username = reader.string();
+                    break;
+                case /* string tenant_name */ 5:
+                    message.tenantName = reader.string();
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -389,6 +397,9 @@ class UserAdminRequest$Type extends MessageType<UserAdminRequest> {
         /* string username = 2; */
         if (message.username !== "")
             writer.tag(2, WireType.LengthDelimited).string(message.username);
+        /* string tenant_name = 5; */
+        if (message.tenantName !== "")
+            writer.tag(5, WireType.LengthDelimited).string(message.tenantName);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

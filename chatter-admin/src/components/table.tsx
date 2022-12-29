@@ -41,17 +41,23 @@ const Table: Component<TableProps> = (props) => {
         );
 
         if (props.actions) {
+          const actions = [];
           props.actions.forEach((action) =>
-            row.push(
-              <td>
+            actions.push(
+              <p class="control">
                 <button
                   class="button"
                   onClick={() => action.handler(rowValues)}
                 >
                   <span class="icon is-small">{action.icon}</span>
                 </button>
-              </td>
+              </p>
             )
+          );
+          row.push(
+            <td>
+              <div class="field is-grouped">{actions}</div>
+            </td>
           );
         }
         rows.push(<tr>{row}</tr>);

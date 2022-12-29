@@ -6,6 +6,7 @@ import { NotificationsProvider } from "./lib/notifications/Notifications";
 
 const Home = lazy(() => import("./pages/Home"));
 const Tenants = lazy(() => import("./pages/tenants/Tenants"));
+const TenantUsers = lazy(() => import("./pages/tenants/Users"));
 
 const App: Component = () => {
   return (
@@ -25,6 +26,7 @@ const App: Component = () => {
           <Routes>
             <Route path="/" component={Home} />
             <Route path="/tenants" component={Tenants} />
+            <Route path="/tenant/:tenant/users" component={TenantUsers} />
           </Routes>
         </div>
       </div>

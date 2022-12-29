@@ -5,28 +5,27 @@ import { transport } from "../lib/transport";
 const tenantsService = new TenantsClient(transport);
 
 export async function listTenants(): Promise<Tenant[]> {
-  const pendingResponse = tenantsService.list({
+  const pending = tenantsService.list({
     listAll: true,
     name: "",
   });
   const tenants = [];
-  for await (let t of pendingResponse.responses) tenants.push(t);
+  for await (let t of pending.responses) tenants.push(t);
   return tenants;
 }
 
 export async function newTenant(name: string): Promise<Tenant> {
-  const pendingResponse = tenantsService.create({
+  const pending = tenantsService.create({
     name,
     id: 0,
   });
-  const response = await pendingResponse.response;
-  return response.tenant;
+  return (await pending.response).tenant;
 }
 
 export async function deleteTenant(name: string) {
-  const pendingResponse = tenantsService.delete({
+  const pending = tenantsService.delete({
     listAll: false,
     name,
   });
-  return pendingResponse.response;
+  return pending.response;
 }

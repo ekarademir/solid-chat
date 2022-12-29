@@ -1,7 +1,9 @@
 import { createResource, createSignal, Component, Show } from "solid-js";
+import { useNavigate } from "@solidjs/router";
 
 import { RiSystemAddFill } from "solid-icons/ri";
 import { RiSystemDeleteBin5Line } from "solid-icons/ri";
+import { RiDocumentFolderUserLine } from "solid-icons/ri";
 
 import commands from "../../commands/";
 import Loading from "../../lib/Loading";
@@ -46,6 +48,7 @@ const Tenants: Component = () => {
   const [tenants, { refetch }] = createResource(fetchTenants);
   const [tenantName, setTenantName] = createSignal("");
   const [openNewTenantModal, setOpenNewTenantModal] = createSignal(false);
+  const navigate = useNavigate();
 
   return (
     <>
@@ -73,6 +76,13 @@ const Tenants: Component = () => {
                     icon: <RiSystemDeleteBin5Line />,
                     handler: (row) => {
                       deleteTenant(row[0]);
+                    },
+                  },
+                  {
+                    // List Users
+                    icon: <RiDocumentFolderUserLine />,
+                    handler: (row) => {
+                      navigate(`/tenant/${row[0]}/users`);
                     },
                   },
                 ]}
