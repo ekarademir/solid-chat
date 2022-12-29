@@ -13,21 +13,15 @@ pub struct UsersAdminService {}
 #[tonic::async_trait]
 impl UsersAdmin for UsersAdminService {
     async fn create(&self, req: Request<User>) -> Result<Response<UserAdminResponse>, Status> {
-        super::connect_and(|conn| {
-            let req = req.get_ref();
-            if let Ok(tenant) = Tenant::find_by_name(conn, &req.tenant_name) {
-                match NewUser::new(&req.username, Some(req.fullname()), req.kind(), &tenant)
-                    .create(conn)
-                {
-                    Ok(user) => Ok(Response::new(UserAdminResponse {
-                        user: Some(user.into_proto(&tenant)),
-                    })),
-                    Err(e) => Err(errors::into_status(e)),
-                }
-            } else {
-                Err(errors::into_status(anyhow::Error::new(
-                    errors::ServiceErrors::TenantDoesNotExist,
-                )))
+        let req = req.get_ref();
+        super::check_tenant_and(&req.tenant_name, |conn, tenant| {
+            match NewUser::new(&req.username, Some(req.fullname()), req.kind(), &tenant)
+                .create(conn)
+            {
+                Ok(user) => Ok(Response::new(UserAdminResponse {
+                    user: Some(user.into_proto(&tenant)),
+                })),
+                Err(e) => Err(errors::into_status(e)),
             }
         })
     }

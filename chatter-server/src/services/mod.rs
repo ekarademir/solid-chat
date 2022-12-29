@@ -6,6 +6,9 @@ use std::env;
 use tonic::{Response, Status};
 use tracing::{span, Level};
 
+use crate::errors;
+use crate::models::tenant::Tenant;
+
 pub mod tenants;
 pub mod users_admin;
 
@@ -31,4 +34,19 @@ where
     } else {
         Err(Status::internal("Internal server error"))
     }
+}
+
+pub fn check_tenant_and<T, F>(tenant_name: &str, f: F) -> Result<Response<T>, Status>
+where
+    F: Fn(&mut PgConnection, &Tenant) -> Result<Response<T>, Status>,
+{
+    connect_and(|conn| {
+        if let Ok(tenant) = Tenant::find_by_name(conn, &tenant_name) {
+            f(conn, &tenant)
+        } else {
+            Err(errors::into_status(anyhow::Error::new(
+                errors::ServiceErrors::TenantDoesNotExist,
+            )))
+        }
+    })
 }
