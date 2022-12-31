@@ -3,6 +3,7 @@ use tonic::{Request, Response, Status};
 
 use crate::chat::{tenants_server::Tenants, Tenant, TenantRequest, TenantResponse};
 use crate::errors;
+use crate::errors::ErrorExt;
 use crate::models::tenant::NewTenant;
 use crate::models::tenant::Tenant as TenantModel;
 
@@ -21,7 +22,7 @@ impl Tenants for TenantsService {
                 Ok(tenant) => Ok(Response::new(TenantResponse {
                     tenant: Some(tenant.into()),
                 })),
-                Err(e) => Err(errors::into_status(e)),
+                Err(e) => Err(e.into_status()),
             },
         )
     }
@@ -31,9 +32,9 @@ impl Tenants for TenantsService {
             |conn| match TenantModel::find_by_name(conn, &req.get_ref().name) {
                 Ok(tenant) => match tenant.delete(conn) {
                     Ok(()) => Ok(Response::new(TenantResponse { tenant: None })),
-                    Err(e) => Err(errors::into_status(e)),
+                    Err(e) => Err(e.into_status()),
                 },
-                Err(e) => Err(errors::into_status(e)),
+                Err(e) => Err(e.into_status()),
             },
         )
     }
@@ -52,12 +53,12 @@ impl Tenants for TenantsService {
                                     tx.send(Ok(tenant.into())).await.unwrap();
                                 }
                             }
-                            Err(e) => tx.send(Err(errors::into_status(e))).await.unwrap(),
+                            Err(e) => tx.send(Err(e.into_status())).await.unwrap(),
                         };
                     } else if req.name.len() > 0 {
                         match TenantModel::find_by_name(&mut conn, &req.name) {
                             Ok(tenant) => tx.send(Ok(tenant.into())).await.unwrap(),
-                            Err(e) => tx.send(Err(errors::into_status(e))).await.unwrap(),
+                            Err(e) => tx.send(Err(e.into_status())).await.unwrap(),
                         }
                     } else {
                         tx.send(Err(errors::into_status(
@@ -68,7 +69,7 @@ impl Tenants for TenantsService {
                         .unwrap();
                     }
                 }
-                Err(e) => tx.send(Err(errors::into_status(e))).await.unwrap(),
+                Err(e) => tx.send(Err(e.into_status())).await.unwrap(),
             }
         });
 

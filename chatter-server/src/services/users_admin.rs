@@ -3,6 +3,7 @@ use tonic::{Request, Response, Status};
 
 use crate::chat::{users_admin_server::UsersAdmin, User, UserAdminRequest, UserAdminResponse};
 use crate::errors;
+use crate::errors::ErrorExt;
 use crate::models::{tenant::Tenant, user::NewUser, user::User as UserModel};
 
 pub use crate::chat::users_admin_server::UsersAdminServer;
@@ -21,7 +22,7 @@ impl UsersAdmin for UsersAdminService {
                 Ok(user) => Ok(Response::new(UserAdminResponse {
                     user: Some(user.into_proto(&tenant)),
                 })),
-                Err(e) => Err(errors::into_status(e)),
+                Err(e) => Err(e.into_status()),
             }
         })
     }
@@ -44,12 +45,12 @@ impl UsersAdmin for UsersAdminService {
                                         tx.send(Ok(user.into_proto(&tenant))).await.unwrap();
                                     }
                                 }
-                                Err(e) => tx.send(Err(errors::into_status(e))).await.unwrap(),
+                                Err(e) => tx.send(Err(e.into_status())).await.unwrap(),
                             }
                         } else if req.username.len() > 0 {
                             match UserModel::find_by_username(&mut conn, &tenant, &req.username) {
                                 Ok(user) => tx.send(Ok(user.into_proto(&tenant))).await.unwrap(),
-                                Err(e) => tx.send(Err(errors::into_status(e))).await.unwrap(),
+                                Err(e) => tx.send(Err(e.into_status())).await.unwrap(),
                             }
                         } else {
                             tx.send(Err(errors::into_status(
@@ -67,7 +68,7 @@ impl UsersAdmin for UsersAdminService {
                         .unwrap();
                     }
                 }
-                Err(e) => tx.send(Err(errors::into_status(e))).await.unwrap(),
+                Err(e) => tx.send(Err(e.into_status())).await.unwrap(),
             }
         });
         Ok(Response::new(ReceiverStream::new(rx)))
