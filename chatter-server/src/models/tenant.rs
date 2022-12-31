@@ -39,9 +39,7 @@ impl Tenant {
 
     pub fn delete(&self, conn: &mut PgConnection) -> Result<()> {
         if self.tenant_name == "chatter" {
-            return Err(anyhow::Error::new(
-                errors::ServiceErrors::CannotDeleteDefaultTenant,
-            ));
+            return Err(errors::ServiceError::CannotDeleteDefaultTenant.into());
         }
         diesel::delete(self)
             .execute(conn)

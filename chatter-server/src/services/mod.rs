@@ -47,7 +47,7 @@ where
             f(conn, &tenant)
         } else {
             Err(errors::into_status(anyhow::Error::new(
-                errors::ServiceErrors::TenantDoesNotExist,
+                errors::ServiceError::TenantDoesNotExist,
             )))
         }
     })

@@ -61,7 +61,7 @@ impl Tenants for TenantsService {
                         }
                     } else {
                         tx.send(Err(errors::into_status(
-                            anyhow::Error::new(errors::ServiceErrors::EmptyRequestFields)
+                            anyhow::Error::new(errors::ServiceError::EmptyRequestFields)
                                 .context("list_all, name"),
                         )))
                         .await

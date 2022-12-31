@@ -11,14 +11,14 @@ pub fn into_status(err: anyhow::Error) -> Status {
         Some(_) => Status::unknown(format!("Unknown database error {:?}", err)),
         None => match err.downcast_ref::<ConnectionError>() {
             Some(_) => Status::internal("Internal server error"),
-            None => match err.downcast_ref::<ServiceErrors>() {
-                Some(ServiceErrors::CannotDeleteDefaultTenant) => {
+            None => match err.downcast_ref::<ServiceError>() {
+                Some(ServiceError::CannotDeleteDefaultTenant) => {
                     Status::failed_precondition("Can't delete the default tenant")
                 }
-                Some(ServiceErrors::TenantDoesNotExist) => {
+                Some(ServiceError::TenantDoesNotExist) => {
                     Status::failed_precondition("Tenant does not exist")
                 }
-                Some(ServiceErrors::EmptyRequestFields) => {
+                Some(ServiceError::EmptyRequestFields) => {
                     Status::failed_precondition(format!("Empty request fields {}", err))
                 }
                 _ => Status::unknown(format!("{:?}", err)),
@@ -28,7 +28,7 @@ pub fn into_status(err: anyhow::Error) -> Status {
 }
 
 #[derive(thiserror::Error, Debug)]
-pub enum ServiceErrors {
+pub enum ServiceError {
     #[error("Can not delete the default tenant")]
     CannotDeleteDefaultTenant,
     #[error("Tenant does not exist")]
