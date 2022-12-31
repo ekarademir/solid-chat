@@ -1,4 +1,4 @@
-use anyhow::{Context, Result};
+use anyhow::Context;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use dotenvy::dotenv;
@@ -12,7 +12,9 @@ use crate::models::tenant::Tenant;
 pub mod tenants;
 pub mod users_admin;
 
-pub fn connect_to_pg() -> Result<PgConnection> {
+pub type ServiceResult<T> = Result<Response<T>, Status>;
+
+pub fn connect_to_pg() -> anyhow::Result<PgConnection> {
     let connect_to_pg_span = span!(Level::DEBUG, "connect_to_pg").entered();
     dotenv()?;
     let database_url =

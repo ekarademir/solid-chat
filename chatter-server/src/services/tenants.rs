@@ -6,6 +6,8 @@ use crate::errors;
 use crate::models::tenant::NewTenant;
 use crate::models::tenant::Tenant as TenantModel;
 
+use super::ServiceResult;
+
 pub use crate::chat::tenants_server::TenantsServer;
 
 #[derive(Default)]
@@ -13,7 +15,7 @@ pub struct TenantsService {}
 
 #[tonic::async_trait]
 impl Tenants for TenantsService {
-    async fn create(&self, req: Request<Tenant>) -> Result<Response<TenantResponse>, Status> {
+    async fn create(&self, req: Request<Tenant>) -> ServiceResult<TenantResponse> {
         super::connect_and(
             |conn| match NewTenant::new(&req.get_ref().name).create(conn) {
                 Ok(tenant) => Ok(Response::new(TenantResponse {
@@ -24,10 +26,7 @@ impl Tenants for TenantsService {
         )
     }
 
-    async fn delete(
-        &self,
-        req: Request<TenantRequest>,
-    ) -> Result<Response<TenantResponse>, Status> {
+    async fn delete(&self, req: Request<TenantRequest>) -> ServiceResult<TenantResponse> {
         super::connect_and(
             |conn| match TenantModel::find_by_name(conn, &req.get_ref().name) {
                 Ok(tenant) => match tenant.delete(conn) {
@@ -40,10 +39,7 @@ impl Tenants for TenantsService {
     }
 
     type ListStream = ReceiverStream<Result<Tenant, Status>>;
-    async fn list(
-        &self,
-        req: Request<TenantRequest>,
-    ) -> Result<Response<Self::ListStream>, Status> {
+    async fn list(&self, req: Request<TenantRequest>) -> ServiceResult<Self::ListStream> {
         let (tx, rx) = tokio::sync::mpsc::channel(100);
         tokio::spawn(async move {
             match super::connect_to_pg() {
