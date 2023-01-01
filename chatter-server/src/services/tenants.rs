@@ -11,11 +11,6 @@ use super::ServiceResult;
 
 pub use crate::chat::tenants_server::TenantsServer;
 
-#[tonic::async_trait]
-pub trait Streaming {
-    async fn stream();
-}
-
 #[derive(Default)]
 pub struct TenantsService {}
 
