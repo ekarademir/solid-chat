@@ -3,10 +3,10 @@ use tokio_stream::wrappers::ReceiverStream;
 use tonic::{Request, Response, Status};
 
 use crate::chat::{tenants_server::Tenants, FindRequest, ListRequest, Tenant, TenantResponse};
-use crate::errors::ErrorExt;
 use crate::models::tenant::NewTenant;
 use crate::models::tenant::Tenant as TenantModel;
 
+use super::Respondable;
 use super::ServiceResult;
 
 pub use crate::chat::tenants_server::TenantsServer;
@@ -26,7 +26,7 @@ impl Tenants for TenantsService {
                     }))
                 })
         })
-        .map_err(|e| e.into_status())
+        .response()
     }
 
     async fn delete(&self, req: Request<FindRequest>) -> ServiceResult<TenantResponse> {
@@ -35,7 +35,7 @@ impl Tenants for TenantsService {
                 .and_then(|tenant| tenant.delete(conn))
                 .and_then(|_| Ok(Response::new(TenantResponse { tenant: None })))
         })
-        .map_err(|e| e.into_status())
+        .response()
     }
 
     type ListStream = ReceiverStream<Result<Tenant, Status>>;
@@ -50,12 +50,14 @@ impl Tenants for TenantsService {
                             .map(|tenant| tx.send(Ok(tenant.clone().into()))),
                     ))
                 })
-            }) {
+            })
+            .response()
+            {
                 Ok(x) => {
                     x.await;
                 }
                 Err(x) => {
-                    tx.send(Err(x.into_status())).await.ok();
+                    tx.send(Err(x)).await.ok();
                 }
             }
         });

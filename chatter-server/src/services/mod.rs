@@ -7,6 +7,7 @@ use tonic::{Response, Status};
 use tracing::{span, Level};
 
 use crate::errors;
+use crate::errors::ErrorExt;
 use crate::models::tenant::Tenant;
 
 pub mod tenants;
@@ -49,4 +50,14 @@ where
             Err(anyhow::Error::new(errors::ServiceError::TenantDoesNotExist))
         }
     })
+}
+
+pub trait Respondable<T> {
+    fn response(self) -> Result<T, Status>;
+}
+
+impl<T> Respondable<T> for Result<T, anyhow::Error> {
+    fn response(self) -> Result<T, Status> {
+        self.map_err(|e| e.into_status())
+    }
 }

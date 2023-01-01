@@ -6,8 +6,9 @@ use crate::chat::{
     users_admin_server::UsersAdmin, FindWithTenantRequest, ListWithTenantRequest, User,
     UserAdminResponse,
 };
-use crate::errors::ErrorExt;
 use crate::models::{user::NewUser, user::User as UserModel};
+
+use super::Respondable;
 
 pub use crate::chat::users_admin_server::UsersAdminServer;
 
@@ -27,7 +28,7 @@ impl UsersAdmin for UsersAdminService {
                     }))
                 })
         })
-        .map_err(|e| e.into_status())
+        .response()
     }
 
     type ListStream = ReceiverStream<Result<User, Status>>;
@@ -46,12 +47,14 @@ impl UsersAdmin for UsersAdminService {
                             .map(|user| tx.send(Ok(user.into_proto(&tenant)))),
                     ))
                 })
-            }) {
+            })
+            .response()
+            {
                 Ok(x) => {
                     x.await;
                 }
                 Err(x) => {
-                    tx.send(Err(x.into_status())).await.ok();
+                    tx.send(Err(x)).await.ok();
                 }
             };
         });
