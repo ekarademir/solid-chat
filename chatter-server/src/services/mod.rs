@@ -53,11 +53,16 @@ where
 }
 
 pub trait Respondable<T> {
-    fn response(self) -> Result<T, Status>;
+    fn response(self) -> Result<Response<T>, Status>;
+    fn with_status(self) -> Result<T, Status>;
 }
 
 impl<T> Respondable<T> for Result<T, anyhow::Error> {
-    fn response(self) -> Result<T, Status> {
+    fn response(self) -> Result<Response<T>, Status> {
+        self.and_then(|x| Ok(Response::new(x)))
+            .map_err(|e| e.into_status())
+    }
+    fn with_status(self) -> Result<T, Status> {
         self.map_err(|e| e.into_status())
     }
 }

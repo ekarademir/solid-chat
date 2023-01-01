@@ -21,9 +21,9 @@ impl Tenants for TenantsService {
             NewTenant::new(&req.get_ref().name)
                 .create(conn)
                 .and_then(|tenant| {
-                    Ok(Response::new(TenantResponse {
+                    Ok(TenantResponse {
                         tenant: Some(tenant.into()),
-                    }))
+                    })
                 })
         })
         .response()
@@ -33,7 +33,7 @@ impl Tenants for TenantsService {
         super::connect_and(|conn| {
             TenantModel::find_by_name(conn, &req.get_ref().name.as_deref().unwrap_or(""))
                 .and_then(|tenant| tenant.delete(conn))
-                .and_then(|_| Ok(Response::new(TenantResponse { tenant: None })))
+                .and_then(|_| Ok(TenantResponse { tenant: None }))
         })
         .response()
     }
@@ -51,7 +51,7 @@ impl Tenants for TenantsService {
                     ))
                 })
             })
-            .response()
+            .with_status()
             {
                 Ok(x) => {
                     x.await;

@@ -23,9 +23,9 @@ impl UsersAdmin for UsersAdminService {
             NewUser::new(&req.username, Some(req.fullname()), req.kind(), &tenant)
                 .create(conn)
                 .and_then(|user| {
-                    Ok(Response::new(UserAdminResponse {
+                    Ok(UserAdminResponse {
                         user: Some(user.into_proto(&tenant)),
-                    }))
+                    })
                 })
         })
         .response()
@@ -48,7 +48,7 @@ impl UsersAdmin for UsersAdminService {
                     ))
                 })
             })
-            .response()
+            .with_status()
             {
                 Ok(x) => {
                     x.await;
