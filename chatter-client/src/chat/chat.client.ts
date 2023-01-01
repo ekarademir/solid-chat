@@ -2,13 +2,15 @@
 // @generated from protobuf file "chat.proto" (package "chat", syntax proto3)
 // tslint:disable
 import { UsersAdmin } from "./chat";
-import type { UserAdminRequest } from "./chat";
+import type { FindWithTenantRequest } from "./chat";
+import type { ListWithTenantRequest } from "./chat";
 import type { UserAdminResponse } from "./chat";
 import type { User } from "./chat";
 import type { RpcTransport } from "@protobuf-ts/runtime-rpc";
 import type { ServiceInfo } from "@protobuf-ts/runtime-rpc";
 import { Tenants } from "./chat";
-import type { TenantRequest } from "./chat";
+import type { FindRequest } from "./chat";
+import type { ListRequest } from "./chat";
 import type { ServerStreamingCall } from "@protobuf-ts/runtime-rpc";
 import { stackIntercept } from "@protobuf-ts/runtime-rpc";
 import type { TenantResponse } from "./chat";
@@ -24,13 +26,13 @@ export interface ITenantsClient {
      */
     create(input: Tenant, options?: RpcOptions): UnaryCall<Tenant, TenantResponse>;
     /**
-     * @generated from protobuf rpc: List(chat.TenantRequest) returns (stream chat.Tenant);
+     * @generated from protobuf rpc: List(chat.ListRequest) returns (stream chat.Tenant);
      */
-    list(input: TenantRequest, options?: RpcOptions): ServerStreamingCall<TenantRequest, Tenant>;
+    list(input: ListRequest, options?: RpcOptions): ServerStreamingCall<ListRequest, Tenant>;
     /**
-     * @generated from protobuf rpc: Delete(chat.TenantRequest) returns (chat.TenantResponse);
+     * @generated from protobuf rpc: Delete(chat.FindRequest) returns (chat.TenantResponse);
      */
-    delete(input: TenantRequest, options?: RpcOptions): UnaryCall<TenantRequest, TenantResponse>;
+    delete(input: FindRequest, options?: RpcOptions): UnaryCall<FindRequest, TenantResponse>;
 }
 /**
  * @generated from protobuf service chat.Tenants
@@ -49,18 +51,18 @@ export class TenantsClient implements ITenantsClient, ServiceInfo {
         return stackIntercept<Tenant, TenantResponse>("unary", this._transport, method, opt, input);
     }
     /**
-     * @generated from protobuf rpc: List(chat.TenantRequest) returns (stream chat.Tenant);
+     * @generated from protobuf rpc: List(chat.ListRequest) returns (stream chat.Tenant);
      */
-    list(input: TenantRequest, options?: RpcOptions): ServerStreamingCall<TenantRequest, Tenant> {
+    list(input: ListRequest, options?: RpcOptions): ServerStreamingCall<ListRequest, Tenant> {
         const method = this.methods[1], opt = this._transport.mergeOptions(options);
-        return stackIntercept<TenantRequest, Tenant>("serverStreaming", this._transport, method, opt, input);
+        return stackIntercept<ListRequest, Tenant>("serverStreaming", this._transport, method, opt, input);
     }
     /**
-     * @generated from protobuf rpc: Delete(chat.TenantRequest) returns (chat.TenantResponse);
+     * @generated from protobuf rpc: Delete(chat.FindRequest) returns (chat.TenantResponse);
      */
-    delete(input: TenantRequest, options?: RpcOptions): UnaryCall<TenantRequest, TenantResponse> {
+    delete(input: FindRequest, options?: RpcOptions): UnaryCall<FindRequest, TenantResponse> {
         const method = this.methods[2], opt = this._transport.mergeOptions(options);
-        return stackIntercept<TenantRequest, TenantResponse>("unary", this._transport, method, opt, input);
+        return stackIntercept<FindRequest, TenantResponse>("unary", this._transport, method, opt, input);
     }
 }
 // 
@@ -80,17 +82,17 @@ export interface IUsersAdminClient {
      */
     create(input: User, options?: RpcOptions): UnaryCall<User, UserAdminResponse>;
     /**
-     * @generated from protobuf rpc: List(chat.UserAdminRequest) returns (stream chat.User);
+     * @generated from protobuf rpc: List(chat.ListWithTenantRequest) returns (stream chat.User);
      */
-    list(input: UserAdminRequest, options?: RpcOptions): ServerStreamingCall<UserAdminRequest, User>;
+    list(input: ListWithTenantRequest, options?: RpcOptions): ServerStreamingCall<ListWithTenantRequest, User>;
     /**
-     * @generated from protobuf rpc: Delete(chat.UserAdminRequest) returns (chat.UserAdminResponse);
+     * @generated from protobuf rpc: Delete(chat.FindWithTenantRequest) returns (chat.UserAdminResponse);
      */
-    delete(input: UserAdminRequest, options?: RpcOptions): UnaryCall<UserAdminRequest, UserAdminResponse>;
+    delete(input: FindWithTenantRequest, options?: RpcOptions): UnaryCall<FindWithTenantRequest, UserAdminResponse>;
     /**
-     * @generated from protobuf rpc: Update(chat.UserAdminRequest) returns (chat.UserAdminResponse);
+     * @generated from protobuf rpc: Update(chat.FindWithTenantRequest) returns (chat.UserAdminResponse);
      */
-    update(input: UserAdminRequest, options?: RpcOptions): UnaryCall<UserAdminRequest, UserAdminResponse>;
+    update(input: FindWithTenantRequest, options?: RpcOptions): UnaryCall<FindWithTenantRequest, UserAdminResponse>;
 }
 // 
 // /Tenants
@@ -117,24 +119,24 @@ export class UsersAdminClient implements IUsersAdminClient, ServiceInfo {
         return stackIntercept<User, UserAdminResponse>("unary", this._transport, method, opt, input);
     }
     /**
-     * @generated from protobuf rpc: List(chat.UserAdminRequest) returns (stream chat.User);
+     * @generated from protobuf rpc: List(chat.ListWithTenantRequest) returns (stream chat.User);
      */
-    list(input: UserAdminRequest, options?: RpcOptions): ServerStreamingCall<UserAdminRequest, User> {
+    list(input: ListWithTenantRequest, options?: RpcOptions): ServerStreamingCall<ListWithTenantRequest, User> {
         const method = this.methods[1], opt = this._transport.mergeOptions(options);
-        return stackIntercept<UserAdminRequest, User>("serverStreaming", this._transport, method, opt, input);
+        return stackIntercept<ListWithTenantRequest, User>("serverStreaming", this._transport, method, opt, input);
     }
     /**
-     * @generated from protobuf rpc: Delete(chat.UserAdminRequest) returns (chat.UserAdminResponse);
+     * @generated from protobuf rpc: Delete(chat.FindWithTenantRequest) returns (chat.UserAdminResponse);
      */
-    delete(input: UserAdminRequest, options?: RpcOptions): UnaryCall<UserAdminRequest, UserAdminResponse> {
+    delete(input: FindWithTenantRequest, options?: RpcOptions): UnaryCall<FindWithTenantRequest, UserAdminResponse> {
         const method = this.methods[2], opt = this._transport.mergeOptions(options);
-        return stackIntercept<UserAdminRequest, UserAdminResponse>("unary", this._transport, method, opt, input);
+        return stackIntercept<FindWithTenantRequest, UserAdminResponse>("unary", this._transport, method, opt, input);
     }
     /**
-     * @generated from protobuf rpc: Update(chat.UserAdminRequest) returns (chat.UserAdminResponse);
+     * @generated from protobuf rpc: Update(chat.FindWithTenantRequest) returns (chat.UserAdminResponse);
      */
-    update(input: UserAdminRequest, options?: RpcOptions): UnaryCall<UserAdminRequest, UserAdminResponse> {
+    update(input: FindWithTenantRequest, options?: RpcOptions): UnaryCall<FindWithTenantRequest, UserAdminResponse> {
         const method = this.methods[3], opt = this._transport.mergeOptions(options);
-        return stackIntercept<UserAdminRequest, UserAdminResponse>("unary", this._transport, method, opt, input);
+        return stackIntercept<FindWithTenantRequest, UserAdminResponse>("unary", this._transport, method, opt, input);
     }
 }

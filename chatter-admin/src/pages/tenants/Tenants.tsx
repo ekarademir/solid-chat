@@ -18,7 +18,10 @@ const Tenants: Component = () => {
 
   const fetchTenants = async () => {
     try {
-      return await commands.tenants.listTenants();
+      return await commands.tenants.listTenants({
+        start: 0,
+        count: 10,
+      });
     } catch (e) {
       scheduleError(errorMessage(e));
       return [];
