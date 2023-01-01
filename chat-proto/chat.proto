@@ -3,16 +3,41 @@ syntax = "proto3";
 package chat;
 
 //
+// Common
+//
+message FindRequest {
+  optional string name = 1;
+  optional string uuid = 2;
+  optional string id = 3;
+}
+
+message ListRequest {
+  int32 start = 1;
+  int32 count = 2;
+}
+
+message FindWithTenantRequest {
+  string tenant_name = 1;
+  optional string name = 2;
+  optional string uuid = 3;
+  optional string id = 4;
+}
+
+message ListWithTenantRequest {
+  int32 start = 1;
+  int32 count = 2;
+}
+
+//
+// /Common
+//
+
+//
 // Tenants
 //
 
 message Tenant {
   int32 id = 1;
-  string name = 2;
-}
-
-message TenantRequest {
-  bool list_all = 1;
   string name = 2;
 }
 
@@ -22,8 +47,8 @@ message TenantResponse {
 
 service Tenants {
   rpc Create(Tenant) returns (TenantResponse) {}
-  rpc List(TenantRequest) returns (stream Tenant) {}
-  rpc Delete(TenantRequest) returns (TenantResponse) {}
+  rpc List(ListRequest) returns (stream Tenant) {}
+  rpc Delete(FindRequest) returns (TenantResponse) {}
 }
 
 //
@@ -35,9 +60,9 @@ service Tenants {
 //
 service UsersAdmin {
   rpc Create(User) returns (UserAdminResponse) {}
-  rpc List(UserAdminRequest) returns (stream User) {}
-  rpc Delete(UserAdminRequest) returns (UserAdminResponse) {}
-  rpc Update(UserAdminRequest) returns (UserAdminResponse) {}
+  rpc List(ListWithTenantRequest) returns (stream User) {}
+  rpc Delete(FindWithTenantRequest) returns (UserAdminResponse) {}
+  rpc Update(FindWithTenantRequest) returns (UserAdminResponse) {}
 }
 
 enum UserKind {
@@ -51,12 +76,6 @@ message User {
   string username = 2;
   UserKind kind = 3;
   optional string fullname = 4;
-  string tenant_name = 5;
-}
-
-message UserAdminRequest {
-  bool list_all = 1;
-  string username = 2;
   string tenant_name = 5;
 }
 
