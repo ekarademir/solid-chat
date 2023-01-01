@@ -27,18 +27,7 @@ pub fn connect_to_pg() -> anyhow::Result<PgConnection> {
     Ok(conn)
 }
 
-pub fn connect_and<T, F>(f: F) -> Result<Response<T>, Status>
-where
-    F: Fn(&mut PgConnection) -> Result<Response<T>, Status>,
-{
-    if let Ok(conn) = &mut connect_to_pg() {
-        f(conn)
-    } else {
-        Err(Status::internal("Internal server error"))
-    }
-}
-
-pub fn connect_and_with_stream<T, F>(f: F) -> Result<T, anyhow::Error>
+pub fn connect_and<T, F>(f: F) -> Result<T, anyhow::Error>
 where
     F: Fn(&mut PgConnection) -> Result<T, anyhow::Error>,
 {
@@ -49,26 +38,11 @@ where
     }
 }
 
-pub fn check_tenant_and<T, F>(tenant_name: &str, f: F) -> Result<Response<T>, Status>
-where
-    F: Fn(&mut PgConnection, &Tenant) -> Result<Response<T>, Status>,
-{
-    connect_and(|conn| {
-        if let Ok(tenant) = Tenant::find_by_name(conn, &tenant_name) {
-            f(conn, &tenant)
-        } else {
-            Err(errors::into_status(anyhow::Error::new(
-                errors::ServiceError::TenantDoesNotExist,
-            )))
-        }
-    })
-}
-
-pub fn check_tenant_and_with_stream<T, F>(tenant_name: &str, f: F) -> Result<T, anyhow::Error>
+pub fn check_tenant_and<T, F>(tenant_name: &str, f: F) -> Result<T, anyhow::Error>
 where
     F: Fn(&mut PgConnection, &Tenant) -> Result<T, anyhow::Error>,
 {
-    connect_and_with_stream(|conn| {
+    connect_and(|conn| {
         if let Ok(tenant) = Tenant::find_by_name(conn, &tenant_name) {
             f(conn, &tenant)
         } else {

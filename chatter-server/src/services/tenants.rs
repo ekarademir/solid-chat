@@ -25,8 +25,8 @@ impl Tenants for TenantsService {
                         tenant: Some(tenant.into()),
                     }))
                 })
-                .map_err(|e| e.into_status())
         })
+        .map_err(|e| e.into_status())
     }
 
     async fn delete(&self, req: Request<FindRequest>) -> ServiceResult<TenantResponse> {
@@ -34,32 +34,30 @@ impl Tenants for TenantsService {
             TenantModel::find_by_name(conn, &req.get_ref().name.as_deref().unwrap_or(""))
                 .and_then(|tenant| tenant.delete(conn))
                 .and_then(|_| Ok(Response::new(TenantResponse { tenant: None })))
-                .map_err(|e| e.into_status())
         })
+        .map_err(|e| e.into_status())
     }
 
     type ListStream = ReceiverStream<Result<Tenant, Status>>;
     async fn list(&self, req: Request<ListRequest>) -> ServiceResult<Self::ListStream> {
         let (tx, rx) = tokio::sync::mpsc::channel(100);
         tokio::spawn(async move {
-            match super::connect_to_pg()
-                .and_then(|mut conn| TenantModel::list(&mut conn))
-                .and_then(|tenants| {
+            match super::connect_and(|mut conn| {
+                TenantModel::list(&mut conn).and_then(|tenants| {
                     Ok(join_all(
                         tenants
                             .iter()
                             .map(|tenant| tx.send(Ok(tenant.clone().into()))),
                     ))
                 })
-                .map_err(|e| tx.send(Err(e.into_status())))
-            {
+            }) {
                 Ok(x) => {
                     x.await;
                 }
                 Err(x) => {
-                    x.await.ok();
+                    tx.send(Err(x.into_status())).await.ok();
                 }
-            };
+            }
         });
 
         Ok(Response::new(ReceiverStream::new(rx)))

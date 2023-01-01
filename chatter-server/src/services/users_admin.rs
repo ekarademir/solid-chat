@@ -6,9 +6,8 @@ use crate::chat::{
     users_admin_server::UsersAdmin, FindWithTenantRequest, ListWithTenantRequest, User,
     UserAdminResponse,
 };
-use crate::errors;
 use crate::errors::ErrorExt;
-use crate::models::{tenant::Tenant, user::NewUser, user::User as UserModel};
+use crate::models::{user::NewUser, user::User as UserModel};
 
 pub use crate::chat::users_admin_server::UsersAdminServer;
 
@@ -27,8 +26,8 @@ impl UsersAdmin for UsersAdminService {
                         user: Some(user.into_proto(&tenant)),
                     }))
                 })
-                .map_err(|e| e.into_status())
         })
+        .map_err(|e| e.into_status())
     }
 
     type ListStream = ReceiverStream<Result<User, Status>>;
@@ -39,7 +38,7 @@ impl UsersAdmin for UsersAdminService {
         let (tx, rx) = tokio::sync::mpsc::channel(100);
         tokio::spawn(async move {
             let req = req.get_ref();
-            match super::check_tenant_and_with_stream(&req.tenant_name, |mut conn, tenant| {
+            match super::check_tenant_and(&req.tenant_name, |mut conn, tenant| {
                 UserModel::list(&mut conn, &tenant).and_then(|users| {
                     Ok(join_all(
                         users
