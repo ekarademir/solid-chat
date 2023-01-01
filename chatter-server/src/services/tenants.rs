@@ -17,14 +17,16 @@ pub struct TenantsService {}
 #[tonic::async_trait]
 impl Tenants for TenantsService {
     async fn create(&self, req: Request<Tenant>) -> ServiceResult<TenantResponse> {
-        super::connect_and(
-            |conn| match NewTenant::new(&req.get_ref().name).create(conn) {
-                Ok(tenant) => Ok(Response::new(TenantResponse {
-                    tenant: Some(tenant.into()),
-                })),
-                Err(e) => Err(e.into_status()),
-            },
-        )
+        super::connect_and(|conn| {
+            NewTenant::new(&req.get_ref().name)
+                .create(conn)
+                .and_then(|tenant| {
+                    Ok(Response::new(TenantResponse {
+                        tenant: Some(tenant.into()),
+                    }))
+                })
+                .map_err(|e| e.into_status())
+        })
     }
 
     async fn delete(&self, req: Request<TenantRequest>) -> ServiceResult<TenantResponse> {
