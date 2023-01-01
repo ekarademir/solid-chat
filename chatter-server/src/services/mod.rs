@@ -38,6 +38,17 @@ where
     }
 }
 
+pub fn connect_and_with_stream<T, F>(f: F) -> Result<T, anyhow::Error>
+where
+    F: Fn(&mut PgConnection) -> Result<T, anyhow::Error>,
+{
+    if let Ok(conn) = &mut connect_to_pg() {
+        f(conn)
+    } else {
+        Err(anyhow::Error::new(errors::ServiceError::EmptyRequestFields))
+    }
+}
+
 pub fn check_tenant_and<T, F>(tenant_name: &str, f: F) -> Result<Response<T>, Status>
 where
     F: Fn(&mut PgConnection, &Tenant) -> Result<Response<T>, Status>,
@@ -49,6 +60,19 @@ where
             Err(errors::into_status(anyhow::Error::new(
                 errors::ServiceError::TenantDoesNotExist,
             )))
+        }
+    })
+}
+
+pub fn check_tenant_and_with_stream<T, F>(tenant_name: &str, f: F) -> Result<T, anyhow::Error>
+where
+    F: Fn(&mut PgConnection, &Tenant) -> Result<T, anyhow::Error>,
+{
+    connect_and_with_stream(|conn| {
+        if let Ok(tenant) = Tenant::find_by_name(conn, &tenant_name) {
+            f(conn, &tenant)
+        } else {
+            Err(anyhow::Error::new(errors::ServiceError::TenantDoesNotExist))
         }
     })
 }

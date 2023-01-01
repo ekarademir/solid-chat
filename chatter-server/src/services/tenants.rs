@@ -43,13 +43,12 @@ impl Tenants for TenantsService {
         let (tx, rx) = tokio::sync::mpsc::channel(100);
         tokio::spawn(async move {
             match super::connect_to_pg()
-                .and_then(|conn| {
-                    let req = req.get_ref();
-                    TenantModel::list(&mut conn)
-                })
+                .and_then(|mut conn| TenantModel::list(&mut conn))
                 .and_then(|tenants| {
                     Ok(join_all(
-                        tenants.iter().map(|tenant| tx.send(Ok((*tenant).into()))),
+                        tenants
+                            .iter()
+                            .map(|tenant| tx.send(Ok(tenant.clone().into()))),
                     ))
                 })
                 .map_err(|e| tx.send(Err(e.into_status())))

@@ -1,7 +1,11 @@
+use futures::future::join_all;
 use tokio_stream::wrappers::ReceiverStream;
 use tonic::{Request, Response, Status};
 
-use crate::chat::{users_admin_server::UsersAdmin, User, UserAdminRequest, UserAdminResponse};
+use crate::chat::{
+    users_admin_server::UsersAdmin, FindWithTenantRequest, ListWithTenantRequest, User,
+    UserAdminResponse,
+};
 use crate::errors;
 use crate::errors::ErrorExt;
 use crate::models::{tenant::Tenant, user::NewUser, user::User as UserModel};
@@ -16,74 +20,55 @@ impl UsersAdmin for UsersAdminService {
     async fn create(&self, req: Request<User>) -> Result<Response<UserAdminResponse>, Status> {
         let req = req.get_ref();
         super::check_tenant_and(&req.tenant_name, |conn, tenant| {
-            match NewUser::new(&req.username, Some(req.fullname()), req.kind(), &tenant)
+            NewUser::new(&req.username, Some(req.fullname()), req.kind(), &tenant)
                 .create(conn)
-            {
-                Ok(user) => Ok(Response::new(UserAdminResponse {
-                    user: Some(user.into_proto(&tenant)),
-                })),
-                Err(e) => Err(e.into_status()),
-            }
+                .and_then(|user| {
+                    Ok(Response::new(UserAdminResponse {
+                        user: Some(user.into_proto(&tenant)),
+                    }))
+                })
+                .map_err(|e| e.into_status())
         })
     }
 
     type ListStream = ReceiverStream<Result<User, Status>>;
     async fn list(
         &self,
-        req: Request<UserAdminRequest>,
+        req: Request<ListWithTenantRequest>,
     ) -> Result<Response<Self::ListStream>, Status> {
         let (tx, rx) = tokio::sync::mpsc::channel(100);
         tokio::spawn(async move {
             let req = req.get_ref();
-            match super::connect_to_pg() {
-                Ok(mut conn) => {
-                    if let Ok(tenant) = Tenant::find_by_name(&mut conn, &req.tenant_name) {
-                        if req.list_all {
-                            match UserModel::list(&mut conn, &tenant) {
-                                Ok(users) => {
-                                    for user in users {
-                                        tx.send(Ok(user.into_proto(&tenant))).await.unwrap();
-                                    }
-                                }
-                                Err(e) => tx.send(Err(e.into_status())).await.unwrap(),
-                            }
-                        } else if req.username.len() > 0 {
-                            match UserModel::find_by_username(&mut conn, &tenant, &req.username) {
-                                Ok(user) => tx.send(Ok(user.into_proto(&tenant))).await.unwrap(),
-                                Err(e) => tx.send(Err(e.into_status())).await.unwrap(),
-                            }
-                        } else {
-                            tx.send(Err(errors::into_status(
-                                anyhow::Error::new(errors::ServiceError::EmptyRequestFields)
-                                    .context("list_all, username"),
-                            )))
-                            .await
-                            .unwrap();
-                        }
-                    } else {
-                        tx.send(Err(errors::into_status(anyhow::Error::new(
-                            errors::ServiceError::TenantDoesNotExist,
-                        ))))
-                        .await
-                        .unwrap();
-                    }
+            match super::check_tenant_and_with_stream(&req.tenant_name, |mut conn, tenant| {
+                UserModel::list(&mut conn, &tenant).and_then(|users| {
+                    Ok(join_all(
+                        users
+                            .iter()
+                            .map(|user| tx.send(Ok(user.into_proto(&tenant)))),
+                    ))
+                })
+            }) {
+                Ok(x) => {
+                    x.await;
                 }
-                Err(e) => tx.send(Err(e.into_status())).await.unwrap(),
-            }
+                Err(x) => {
+                    tx.send(Err(x.into_status())).await.ok();
+                }
+            };
         });
         Ok(Response::new(ReceiverStream::new(rx)))
     }
 
     async fn delete(
         &self,
-        req: Request<UserAdminRequest>,
+        req: Request<FindWithTenantRequest>,
     ) -> Result<Response<UserAdminResponse>, Status> {
         unimplemented!()
     }
 
     async fn update(
         &self,
-        req: Request<UserAdminRequest>,
+        req: Request<FindWithTenantRequest>,
     ) -> Result<Response<UserAdminResponse>, Status> {
         unimplemented!()
     }
