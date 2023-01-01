@@ -63,7 +63,7 @@ service UsersAdmin {
   rpc Create(User) returns (UserAdminResponse) {}
   rpc List(ListWithTenantRequest) returns (stream User) {}
   rpc Delete(FindWithTenantRequest) returns (UserAdminResponse) {}
-  rpc Update(FindWithTenantRequest) returns (UserAdminResponse) {}
+  rpc Update(User) returns (UserAdminResponse) {}
 }
 
 enum UserKind {

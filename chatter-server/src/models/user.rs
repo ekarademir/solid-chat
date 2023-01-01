@@ -58,7 +58,7 @@ impl User {
     }
 }
 
-#[derive(Debug, Default, Insertable, Associations)]
+#[derive(Debug, Default, Insertable, Associations, AsChangeset)]
 #[diesel(belongs_to(Tenant))]
 #[diesel(table_name = users)]
 pub struct NewUser<'a> {
@@ -83,9 +83,12 @@ impl<'a> NewUser<'a> {
         }
     }
 
-    pub fn create(&self, conn: &mut PgConnection) -> Result<User> {
+    pub fn create_or_update(&self, conn: &mut PgConnection) -> Result<User> {
         diesel::insert_into(users::table)
             .values(self)
+            .on_conflict((users::tenant_id, users::username))
+            .do_update()
+            .set(self)
             .get_result(conn)
             .context(self.username.to_string())
     }

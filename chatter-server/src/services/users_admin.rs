@@ -21,7 +21,7 @@ impl UsersAdmin for UsersAdminService {
         let req = req.get_ref();
         super::check_tenant_and(&req.tenant_name, |mut conn, tenant| {
             NewUser::new(&req.username, Some(req.fullname()), req.kind(), &tenant)
-                .create(&mut conn)
+                .create_or_update(&mut conn)
                 .and_then(|user| {
                     Ok(UserAdminResponse {
                         user: Some(user.into_proto(&tenant)),
@@ -74,10 +74,17 @@ impl UsersAdmin for UsersAdminService {
         .response()
     }
 
-    async fn update(
-        &self,
-        req: Request<FindWithTenantRequest>,
-    ) -> Result<Response<UserAdminResponse>, Status> {
-        unimplemented!()
+    async fn update(&self, req: Request<User>) -> Result<Response<UserAdminResponse>, Status> {
+        let req = req.get_ref();
+        super::check_tenant_and(&req.tenant_name, |mut conn, tenant| {
+            NewUser::new(&req.username, Some(req.fullname()), req.kind(), &tenant)
+                .create_or_update(&mut conn)
+                .and_then(|user| {
+                    Ok(UserAdminResponse {
+                        user: Some(user.into_proto(&tenant)),
+                    })
+                })
+        })
+        .response()
     }
 }
