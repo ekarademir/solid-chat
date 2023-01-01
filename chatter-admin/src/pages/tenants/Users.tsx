@@ -17,7 +17,11 @@ const Users: Component = () => {
     notificationsApi();
   const fetchUsers = async () => {
     try {
-      return await commands.users.listUsers(params.tenant);
+      return await commands.users.listUsers({
+        tenantName: params.tenant,
+        start: 0,
+        count: 10,
+      });
     } catch (e) {
       scheduleError(errorMessage(e));
       return [];
