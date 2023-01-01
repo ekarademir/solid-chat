@@ -141,6 +141,7 @@ dependencies = [
  "anyhow",
  "diesel",
  "dotenvy",
+ "futures",
  "http",
  "opentelemetry",
  "opentelemetry-jaeger",
