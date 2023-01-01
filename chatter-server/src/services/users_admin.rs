@@ -19,9 +19,9 @@ pub struct UsersAdminService {}
 impl UsersAdmin for UsersAdminService {
     async fn create(&self, req: Request<User>) -> Result<Response<UserAdminResponse>, Status> {
         let req = req.get_ref();
-        super::check_tenant_and(&req.tenant_name, |conn, tenant| {
+        super::check_tenant_and(&req.tenant_name, |mut conn, tenant| {
             NewUser::new(&req.username, Some(req.fullname()), req.kind(), &tenant)
-                .create(conn)
+                .create(&mut conn)
                 .and_then(|user| {
                     Ok(UserAdminResponse {
                         user: Some(user.into_proto(&tenant)),
@@ -65,7 +65,13 @@ impl UsersAdmin for UsersAdminService {
         &self,
         req: Request<FindWithTenantRequest>,
     ) -> Result<Response<UserAdminResponse>, Status> {
-        unimplemented!()
+        let req = req.get_ref();
+        super::check_tenant_and(&req.tenant_name, |mut conn, tenant| {
+            UserModel::find_by_username(&mut conn, tenant, &req.name.as_deref().unwrap_or(""))
+                .and_then(|user| user.delete(&mut conn))
+                .and_then(|_| Ok(UserAdminResponse { user: None }))
+        })
+        .response()
     }
 
     async fn update(

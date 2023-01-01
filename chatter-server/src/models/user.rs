@@ -40,6 +40,13 @@ impl User {
             .context(format!("list for {}", tenant.tenant_name))
     }
 
+    pub fn delete(&self, conn: &mut PgConnection) -> Result<()> {
+        diesel::delete(self)
+            .execute(conn)
+            .context(self.username.clone())?;
+        Ok(())
+    }
+
     pub fn into_proto(&self, tenant: &Tenant) -> ProtoUser {
         ProtoUser {
             username: self.username.clone(),

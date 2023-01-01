@@ -17,9 +17,9 @@ pub struct TenantsService {}
 #[tonic::async_trait]
 impl Tenants for TenantsService {
     async fn create(&self, req: Request<Tenant>) -> ServiceResult<TenantResponse> {
-        super::connect_and(|conn| {
+        super::connect_and(|mut conn| {
             NewTenant::new(&req.get_ref().name)
-                .create(conn)
+                .create(&mut conn)
                 .and_then(|tenant| {
                     Ok(TenantResponse {
                         tenant: Some(tenant.into()),
@@ -30,9 +30,9 @@ impl Tenants for TenantsService {
     }
 
     async fn delete(&self, req: Request<FindRequest>) -> ServiceResult<TenantResponse> {
-        super::connect_and(|conn| {
-            TenantModel::find_by_name(conn, &req.get_ref().name.as_deref().unwrap_or(""))
-                .and_then(|tenant| tenant.delete(conn))
+        super::connect_and(|mut conn| {
+            TenantModel::find_by_name(&mut conn, &req.get_ref().name.as_deref().unwrap_or(""))
+                .and_then(|tenant| tenant.delete(&mut conn))
                 .and_then(|_| Ok(TenantResponse { tenant: None }))
         })
         .response()
