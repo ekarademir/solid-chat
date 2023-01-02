@@ -4,14 +4,14 @@ import { transport } from "../lib/transport";
 
 const tenantsService = new TenantsClient(transport);
 
-export async function listTenants(opts: ListRequest): Promise<Tenant[]> {
+export async function listTenants(opts: ListRequest) {
   const pending = tenantsService.list(opts);
   const tenants = [];
   for await (let t of pending.responses) tenants.push(t);
   return tenants;
 }
 
-export async function newTenant(name: string): Promise<Tenant> {
+export async function newTenant(name: string) {
   const pending = tenantsService.create({
     name,
     id: 0,
@@ -23,5 +23,5 @@ export async function deleteTenant(name: string) {
   const pending = tenantsService.delete({
     name,
   });
-  return pending.response;
+  return (await pending.response).tenant;
 }

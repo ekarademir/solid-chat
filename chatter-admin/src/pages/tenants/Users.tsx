@@ -40,6 +40,21 @@ const Users: Component = () => {
       .then(refetch);
   };
 
+  const deleteUser = (username) => {
+    commands.users
+      .deleteUser({
+        name: username,
+        tenantName: params.tenant,
+      })
+      .then(() => scheduleWarning(`${name} deleted`))
+      .catch((e) => scheduleError(errorMessage(e)))
+      .then(refetch);
+  };
+
+  const setPassword = () => {
+    //
+  };
+
   const [users, { refetch }] = createResource(fetchUsers);
 
   // Modal state
@@ -69,6 +84,15 @@ const Users: Component = () => {
                   {
                     title: "Username",
                     values,
+                  },
+                ]}
+                actions={[
+                  {
+                    // Delete
+                    icon: <RiSystemDeleteBin5Line />,
+                    handler: (row) => {
+                      deleteUser(row[0]);
+                    },
                   },
                 ]}
               />

@@ -1,15 +1,16 @@
 "use strict";
 import { listTenants, newTenant, deleteTenant } from "./tenants";
-import { listUsers, newUser, UserKindHumanReadable } from "./users";
+import { listUsers, newUser, UserKindHumanReadable, deleteUser } from "./users";
 import { RpcError } from "@protobuf-ts/runtime-rpc";
 
 export default {
   tenants: {
+    deleteTenant,
     listTenants,
     newTenant,
-    deleteTenant,
   },
   users: {
+    deleteUser,
     listUsers,
     newUser,
     UserKind: UserKindHumanReadable,
