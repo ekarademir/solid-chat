@@ -32,11 +32,8 @@ pub fn connect_and<T, F>(f: F) -> Result<T, anyhow::Error>
 where
     F: Fn(&mut PgConnection) -> Result<T, anyhow::Error>,
 {
-    if let Ok(conn) = &mut connect_to_pg() {
-        f(conn)
-    } else {
-        Err(anyhow::Error::new(errors::ServiceError::EmptyRequestFields))
-    }
+    let mut conn = connect_to_pg()?;
+    f(&mut conn)
 }
 
 pub fn check_tenant_and<T, F>(tenant_name: &str, f: F) -> Result<T, anyhow::Error>
@@ -44,11 +41,8 @@ where
     F: Fn(&mut PgConnection, &Tenant) -> Result<T, anyhow::Error>,
 {
     connect_and(|conn| {
-        if let Ok(tenant) = Tenant::find_by_name(conn, &tenant_name) {
-            f(conn, &tenant)
-        } else {
-            Err(anyhow::Error::new(errors::ServiceError::TenantDoesNotExist))
-        }
+        let tenant = Tenant::find_by_name(conn, &tenant_name)?;
+        f(conn, &tenant)
     })
 }
 
