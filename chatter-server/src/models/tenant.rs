@@ -68,6 +68,14 @@ impl<'a> NewTenant<'a> {
         NewTenant { tenant_name: name }
     }
 
+    pub fn validate(tenant: &ProtoTenant) -> Result<()> {
+        if tenant.name.len() == 0 {
+            return Err(errors::ServiceError::ValidationFailed)
+                .context("Tenant name can't be empty");
+        }
+        Ok(())
+    }
+
     pub fn create(&self, conn: &mut PgConnection) -> Result<Tenant> {
         diesel::insert_into(tenants::table)
             .values(self)

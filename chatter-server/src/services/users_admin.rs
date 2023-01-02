@@ -20,13 +20,15 @@ impl UsersAdmin for UsersAdminService {
     async fn create(&self, req: Request<User>) -> Result<Response<UserAdminResponse>, Status> {
         let req = req.get_ref();
         super::check_tenant_and(&req.tenant_name, |mut conn, tenant| {
-            NewUser::new(&req.username, Some(req.fullname()), req.kind(), &tenant)
-                .create_or_update(&mut conn)
-                .and_then(|user| {
-                    Ok(UserAdminResponse {
-                        user: Some(user.into_proto(&tenant)),
+            NewUser::validate(&req).and_then(|_| {
+                NewUser::new(&req.username, Some(req.fullname()), req.kind(), &tenant)
+                    .create_or_update(&mut conn)
+                    .and_then(|user| {
+                        Ok(UserAdminResponse {
+                            user: Some(user.into_proto(&tenant)),
+                        })
                     })
-                })
+            })
         })
         .response()
     }
@@ -77,13 +79,15 @@ impl UsersAdmin for UsersAdminService {
     async fn update(&self, req: Request<User>) -> Result<Response<UserAdminResponse>, Status> {
         let req = req.get_ref();
         super::check_tenant_and(&req.tenant_name, |mut conn, tenant| {
-            NewUser::new(&req.username, Some(req.fullname()), req.kind(), &tenant)
-                .create_or_update(&mut conn)
-                .and_then(|user| {
-                    Ok(UserAdminResponse {
-                        user: Some(user.into_proto(&tenant)),
+            NewUser::validate(&req).and_then(|_| {
+                NewUser::new(&req.username, Some(req.fullname()), req.kind(), &tenant)
+                    .create_or_update(&mut conn)
+                    .and_then(|user| {
+                        Ok(UserAdminResponse {
+                            user: Some(user.into_proto(&tenant)),
+                        })
                     })
-                })
+            })
         })
         .response()
     }

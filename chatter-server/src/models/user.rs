@@ -3,6 +3,7 @@ use diesel::prelude::*;
 
 use crate::chat::User as ProtoUser;
 use crate::chat::UserKind as ProtoUserKind;
+use crate::errors;
 use crate::schema::users;
 
 use super::tenant::Tenant;
@@ -81,6 +82,16 @@ impl<'a> NewUser<'a> {
             kind: kind as i32,
             tenant_id: tenant.id,
         }
+    }
+
+    pub fn validate(user: &ProtoUser) -> Result<()> {
+        if user.username.len() == 0 {
+            return Err(errors::ServiceError::ValidationFailed).context("Username can't be empty");
+        }
+        if !ProtoUserKind::is_valid(user.kind) {
+            return Err(errors::ServiceError::ValidationFailed).context("User kind is not valid");
+        }
+        Ok(())
     }
 
     pub fn create_or_update(&self, conn: &mut PgConnection) -> Result<User> {
