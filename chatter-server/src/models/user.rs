@@ -49,6 +49,10 @@ impl User {
         Ok(())
     }
 
+    pub fn set_password(&self, password: &str) -> Self {
+        todo!()
+    }
+
     pub fn into_proto(&self, tenant: &Tenant) -> ProtoUser {
         ProtoUser {
             username: self.username.clone(),
@@ -104,7 +108,7 @@ impl<'a> NewUser<'a> {
             .values(self)
             .on_conflict((users::tenant_id, users::username))
             .do_update()
-            .set(self)
+            .set((users::fullname.eq(self.fullname), users::kind.eq(self.kind)))
             .get_result(conn)
             .context(self.username.to_string())
     }

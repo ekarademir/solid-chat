@@ -64,6 +64,7 @@ service UsersAdmin {
   rpc List(ListWithTenantRequest) returns (stream User) {}
   rpc Delete(FindWithTenantRequest) returns (UserAdminResponse) {}
   rpc Update(User) returns (UserAdminResponse) {}
+  rpc SetPassword(UserPassword) returns (UserAdminResponse) {}
 }
 
 enum UserKind {
@@ -82,6 +83,12 @@ message User {
 
 message UserAdminResponse {
   User user = 1;
+}
+
+message UserPassword {
+  string username = 1;
+  string password = 2;
+  string tenant_name = 3;
 }
 
 //

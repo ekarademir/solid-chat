@@ -4,11 +4,12 @@ use tonic::{Request, Response, Status};
 
 use crate::chat::{
     users_admin_server::UsersAdmin, FindWithTenantRequest, ListWithTenantRequest, User,
-    UserAdminResponse,
+    UserAdminResponse, UserPassword,
 };
 use crate::models::{user::NewUser, user::User as UserModel};
 
 use super::Respondable;
+use super::ServiceResult;
 
 pub use crate::chat::users_admin_server::UsersAdminServer;
 
@@ -90,5 +91,9 @@ impl UsersAdmin for UsersAdminService {
             })
         })
         .response()
+    }
+
+    async fn set_password(&self, req: Request<UserPassword>) -> ServiceResult<UserAdminResponse> {
+        todo!()
     }
 }
