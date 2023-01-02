@@ -1,4 +1,4 @@
-import { User, ListWithTenantRequest } from "../chat/chat";
+import { ListWithTenantRequest, User, UserKind } from "../chat/chat";
 import { UsersAdminClient } from "../chat/chat.client";
 import { transport } from "../lib/transport";
 
@@ -15,3 +15,11 @@ export async function newUser(newUser): Promise<User> {
   const pending = usersAdminService.create(newUser);
   return (await pending.response).user;
 }
+
+type UserKindType = { [id: number]: string };
+
+export const UserKindHumanReadable: UserKindType = Object.create(null);
+
+UserKindHumanReadable[UserKind.INVITEE] = "Invitee";
+UserKindHumanReadable[UserKind.REGISTERED] = "Registered";
+UserKindHumanReadable[UserKind.VISITOR] = "Visitor";

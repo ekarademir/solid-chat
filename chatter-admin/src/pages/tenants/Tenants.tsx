@@ -33,7 +33,7 @@ const Tenants: Component = () => {
     if (name) {
       commands.tenants
         .newTenant(name)
-        .then(() => scheduleSuccess(`${name} successfully created`))
+        .then(() => scheduleSuccess(`Tenant, ${name}, created`))
         .catch((e) => scheduleError(errorMessage(e)))
         .then(refetch);
     }
@@ -49,9 +49,11 @@ const Tenants: Component = () => {
   };
 
   const [tenants, { refetch }] = createResource(fetchTenants);
-  const [tenantName, setTenantName] = createSignal("");
-  const [openNewTenantModal, setOpenNewTenantModal] = createSignal(false);
   const navigate = useNavigate();
+
+  // Modal state
+  const [openNewTenantModal, setOpenNewTenantModal] = createSignal(false);
+  const [tenantName, setTenantName] = createSignal("");
 
   return (
     <>

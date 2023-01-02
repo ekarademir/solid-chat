@@ -1,5 +1,6 @@
 use anyhow::{Context, Result};
 use diesel::prelude::*;
+use uuid::Uuid;
 
 use crate::chat::User as ProtoUser;
 use crate::chat::UserKind as ProtoUserKind;
@@ -11,7 +12,7 @@ use super::tenant::Tenant;
 #[derive(Clone, Debug, PartialEq, Eq, Queryable, Identifiable, Associations)]
 #[diesel(belongs_to(Tenant))]
 pub struct User {
-    pub id: uuid::Uuid,
+    pub id: Uuid,
     pub username: String,
     pub fullname: Option<String>,
     pub password: String,
@@ -20,7 +21,7 @@ pub struct User {
 }
 
 impl User {
-    pub fn find(conn: &mut PgConnection, id: uuid::Uuid) -> Result<User> {
+    pub fn find(conn: &mut PgConnection, id: Uuid) -> Result<User> {
         users::table.find(id).first(conn).context(id)
     }
 
@@ -63,8 +64,10 @@ impl User {
 #[diesel(belongs_to(Tenant))]
 #[diesel(table_name = users)]
 pub struct NewUser<'a> {
+    pub id: Uuid,
     pub username: &'a str,
     pub fullname: Option<&'a str>,
+    pub password: String,
     pub kind: i32,
     pub tenant_id: i32,
 }
@@ -77,8 +80,10 @@ impl<'a> NewUser<'a> {
         tenant: &'a Tenant,
     ) -> Self {
         NewUser {
+            id: Uuid::new_v4(),
             username,
             fullname,
+            password: Uuid::new_v4().as_simple().to_string(),
             kind: kind as i32,
             tenant_id: tenant.id,
         }
