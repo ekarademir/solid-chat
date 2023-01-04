@@ -49,9 +49,35 @@ impl User {
     }
 
     pub fn validate_password(value: &UserPassword) -> Result<()> {
+        use lazy_regex::regex;
+
+        let uppercase_letter = regex!(r"[A-Z]");
+        let lowercase_letter = regex!(r"[a-z]");
+        let numeric_letter = regex!(r"[0-9]");
+        let symbolic_letter = regex!(r"\W\D");
+        // Also add !
+
+        let candidate = &value.password;
+
         if value.password.len() < 8 {
             return Err(errors::ServiceError::ValidationFailed)
                 .context("Passwords should be longer than 8 characters");
+        }
+        if !uppercase_letter.is_match(&candidate) {
+            return Err(errors::ServiceError::ValidationFailed)
+                .context("Passwords should include uppercase letters");
+        }
+        if !lowercase_letter.is_match(&candidate) {
+            return Err(errors::ServiceError::ValidationFailed)
+                .context("Passwords should include lowercase letters");
+        }
+        if !numeric_letter.is_match(&candidate) {
+            return Err(errors::ServiceError::ValidationFailed)
+                .context("Passwords should include numeric letters");
+        }
+        if !symbolic_letter.is_match(&candidate) {
+            return Err(errors::ServiceError::ValidationFailed)
+                .context("Passwords should include symbolic letters");
         }
         Ok(())
     }
