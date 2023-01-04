@@ -1,8 +1,8 @@
 import {
   FindWithTenantRequest,
   ListWithTenantRequest,
-  User,
   UserKind,
+  UserPassword,
 } from "../chat/chat";
 import { UsersAdminClient } from "../chat/chat.client";
 import { transport } from "../lib/transport";
@@ -23,6 +23,18 @@ export async function newUser(newUser) {
 
 export async function deleteUser(opts: FindWithTenantRequest) {
   const pending = usersAdminService.delete(opts);
+  return (await pending.response).user;
+}
+
+export interface SetPassword extends UserPassword {
+  passwordRepeat: string;
+}
+
+export async function setPassword(opts: SetPassword) {
+  if (opts.password !== opts.passwordRepeat) {
+    throw new Error("Passwords don't match");
+  }
+  const pending = usersAdminService.setPassword(opts);
   return (await pending.response).user;
 }
 

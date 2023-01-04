@@ -4,6 +4,7 @@ import { useParams } from "@solidjs/router";
 
 import { RiSystemAddFill } from "solid-icons/ri";
 import { RiSystemDeleteBin5Line } from "solid-icons/ri";
+import { RiSystemLockPasswordLine } from "solid-icons/ri";
 
 import commands from "../../commands/";
 import Loading from "../../lib/Loading";
@@ -46,13 +47,25 @@ const Users: Component = () => {
         name: username,
         tenantName: params.tenant,
       })
-      .then(() => scheduleWarning(`${name} deleted`))
+      .then(() => scheduleWarning(`${username} deleted`))
       .catch((e) => scheduleError(errorMessage(e)))
       .then(refetch);
   };
 
-  const setPassword = () => {
-    //
+  const setPassword = (username) => {
+    setUserPasswordModel("username", username);
+    setOpenPasswordModal(true);
+  };
+
+  const savePassword = () => {
+    commands.users
+      .setPassword(userPasswordModel)
+      .then(() => {
+        scheduleSuccess("Password set");
+        setOpenPasswordModal(false);
+      })
+      .catch((e) => scheduleError(errorMessage(e)))
+      .then(refetch);
   };
 
   const [users, { refetch }] = createResource(fetchUsers);
@@ -63,6 +76,15 @@ const Users: Component = () => {
     username: "",
     kind: 0,
     fullname: null,
+    tenantName: params.tenant,
+  });
+
+  // Password reset state
+  const [openPasswordModal, setOpenPasswordModal] = createSignal(false);
+  const [userPasswordModel, setUserPasswordModel] = createStore({
+    username: "",
+    password: "",
+    passwordRepeat: "",
     tenantName: params.tenant,
   });
 
@@ -92,6 +114,13 @@ const Users: Component = () => {
                     icon: <RiSystemDeleteBin5Line />,
                     handler: (row) => {
                       deleteUser(row[0]);
+                    },
+                  },
+                  {
+                    // Set password
+                    icon: <RiSystemLockPasswordLine />,
+                    handler: (row) => {
+                      setPassword(row[0]);
                     },
                   },
                 ]}
@@ -157,6 +186,41 @@ const Users: Component = () => {
                 </For>
               </select>
             </div>
+          </div>
+        </div>
+      </Modal>
+      <Modal
+        title="New User"
+        isOpen={openPasswordModal()}
+        onClose={() => setOpenPasswordModal(false)}
+        onSuccess={() => savePassword()}
+      >
+        <div class="field">
+          <label class="label">Password</label>
+          <div class="control">
+            <input
+              class="input"
+              type="password"
+              placeholder="Password"
+              value={userModel.username}
+              onInput={(e) =>
+                setUserPasswordModel("password", e.currentTarget.value)
+              }
+            />
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Password repeat</label>
+          <div class="control">
+            <input
+              class="input"
+              type="password"
+              placeholder="Retype Password"
+              value={userModel.username}
+              onInput={(e) =>
+                setUserPasswordModel("passwordRepeat", e.currentTarget.value)
+              }
+            />
           </div>
         </div>
       </Modal>

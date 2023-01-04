@@ -2,8 +2,7 @@ use anyhow::{Context, Result};
 use diesel::prelude::*;
 use uuid::Uuid;
 
-use crate::chat::User as ProtoUser;
-use crate::chat::UserKind as ProtoUserKind;
+use crate::chat::{User as ProtoUser, UserKind as ProtoUserKind, UserPassword};
 use crate::errors;
 use crate::schema::users;
 
@@ -49,8 +48,19 @@ impl User {
         Ok(())
     }
 
-    pub fn set_password(&self, password: &str) -> Self {
-        todo!()
+    pub fn validate_password(value: &UserPassword) -> Result<()> {
+        if value.password.len() < 8 {
+            return Err(errors::ServiceError::ValidationFailed)
+                .context("Passwords should be longer than 8 characters");
+        }
+        Ok(())
+    }
+
+    pub fn set_password(&self, conn: &mut PgConnection, password: &str) -> Result<User> {
+        diesel::update(users::table.filter(users::id.eq(self.id)))
+            .set(users::password.eq(password.to_string()))
+            .get_result(conn)
+            .context("password change")
     }
 
     pub fn into_proto(&self, tenant: &Tenant) -> ProtoUser {

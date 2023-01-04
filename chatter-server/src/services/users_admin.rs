@@ -94,6 +94,18 @@ impl UsersAdmin for UsersAdminService {
     }
 
     async fn set_password(&self, req: Request<UserPassword>) -> ServiceResult<UserAdminResponse> {
-        todo!()
+        let req = req.get_ref();
+        super::check_tenant_and(&req.tenant_name, |mut conn, tenant| {
+            UserModel::validate_password(&req).and_then(|_| {
+                UserModel::find_by_username(&mut conn, tenant, &req.username)
+                    .and_then(|user| user.set_password(&mut conn, &req.password))
+                    .and_then(|user| {
+                        Ok(UserAdminResponse {
+                            user: Some(user.into_proto(&tenant)),
+                        })
+                    })
+            })
+        })
+        .response()
     }
 }

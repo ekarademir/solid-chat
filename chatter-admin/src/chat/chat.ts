@@ -149,6 +149,23 @@ export interface UserAdminResponse {
     user?: User;
 }
 /**
+ * @generated from protobuf message chat.UserPassword
+ */
+export interface UserPassword {
+    /**
+     * @generated from protobuf field: string username = 1;
+     */
+    username: string;
+    /**
+     * @generated from protobuf field: string password = 2;
+     */
+    password: string;
+    /**
+     * @generated from protobuf field: string tenant_name = 3;
+     */
+    tenantName: string;
+}
+/**
  * @generated from protobuf enum chat.UserKind
  */
 export enum UserKind {
@@ -632,6 +649,67 @@ class UserAdminResponse$Type extends MessageType<UserAdminResponse> {
  * @generated MessageType for protobuf message chat.UserAdminResponse
  */
 export const UserAdminResponse = new UserAdminResponse$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class UserPassword$Type extends MessageType<UserPassword> {
+    constructor() {
+        super("chat.UserPassword", [
+            { no: 1, name: "username", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "password", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "tenant_name", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<UserPassword>): UserPassword {
+        const message = { username: "", password: "", tenantName: "" };
+        globalThis.Object.defineProperty(message, MESSAGE_TYPE, { enumerable: false, value: this });
+        if (value !== undefined)
+            reflectionMergePartial<UserPassword>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: UserPassword): UserPassword {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string username */ 1:
+                    message.username = reader.string();
+                    break;
+                case /* string password */ 2:
+                    message.password = reader.string();
+                    break;
+                case /* string tenant_name */ 3:
+                    message.tenantName = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: UserPassword, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string username = 1; */
+        if (message.username !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.username);
+        /* string password = 2; */
+        if (message.password !== "")
+            writer.tag(2, WireType.LengthDelimited).string(message.password);
+        /* string tenant_name = 3; */
+        if (message.tenantName !== "")
+            writer.tag(3, WireType.LengthDelimited).string(message.tenantName);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message chat.UserPassword
+ */
+export const UserPassword = new UserPassword$Type();
 /**
  * @generated ServiceType for protobuf service chat.Tenants
  */
@@ -647,5 +725,6 @@ export const UsersAdmin = new ServiceType("chat.UsersAdmin", [
     { name: "Create", options: {}, I: User, O: UserAdminResponse },
     { name: "List", serverStreaming: true, options: {}, I: ListWithTenantRequest, O: User },
     { name: "Delete", options: {}, I: FindWithTenantRequest, O: UserAdminResponse },
-    { name: "Update", options: {}, I: FindWithTenantRequest, O: UserAdminResponse }
+    { name: "Update", options: {}, I: User, O: UserAdminResponse },
+    { name: "SetPassword", options: {}, I: UserPassword, O: UserAdminResponse }
 ]);

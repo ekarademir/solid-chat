@@ -35,7 +35,7 @@ impl ErrorExt for anyhow::Error {
                         Status::failed_precondition("Tenant does not exist")
                     }
                     Some(ServiceError::ValidationFailed) => {
-                        Status::failed_precondition(format!("Empty request fields {}", self))
+                        Status::failed_precondition(format!("{}", self))
                     }
                     _ => Status::unknown(format!("{:?}", self)),
                 },

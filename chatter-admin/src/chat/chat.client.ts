@@ -2,6 +2,7 @@
 // @generated from protobuf file "chat.proto" (package "chat", syntax proto3)
 // tslint:disable
 import { UsersAdmin } from "./chat";
+import type { UserPassword } from "./chat";
 import type { FindWithTenantRequest } from "./chat";
 import type { ListWithTenantRequest } from "./chat";
 import type { UserAdminResponse } from "./chat";
@@ -90,9 +91,13 @@ export interface IUsersAdminClient {
      */
     delete(input: FindWithTenantRequest, options?: RpcOptions): UnaryCall<FindWithTenantRequest, UserAdminResponse>;
     /**
-     * @generated from protobuf rpc: Update(chat.FindWithTenantRequest) returns (chat.UserAdminResponse);
+     * @generated from protobuf rpc: Update(chat.User) returns (chat.UserAdminResponse);
      */
-    update(input: FindWithTenantRequest, options?: RpcOptions): UnaryCall<FindWithTenantRequest, UserAdminResponse>;
+    update(input: User, options?: RpcOptions): UnaryCall<User, UserAdminResponse>;
+    /**
+     * @generated from protobuf rpc: SetPassword(chat.UserPassword) returns (chat.UserAdminResponse);
+     */
+    setPassword(input: UserPassword, options?: RpcOptions): UnaryCall<UserPassword, UserAdminResponse>;
 }
 // 
 // /Tenants
@@ -133,10 +138,17 @@ export class UsersAdminClient implements IUsersAdminClient, ServiceInfo {
         return stackIntercept<FindWithTenantRequest, UserAdminResponse>("unary", this._transport, method, opt, input);
     }
     /**
-     * @generated from protobuf rpc: Update(chat.FindWithTenantRequest) returns (chat.UserAdminResponse);
+     * @generated from protobuf rpc: Update(chat.User) returns (chat.UserAdminResponse);
      */
-    update(input: FindWithTenantRequest, options?: RpcOptions): UnaryCall<FindWithTenantRequest, UserAdminResponse> {
+    update(input: User, options?: RpcOptions): UnaryCall<User, UserAdminResponse> {
         const method = this.methods[3], opt = this._transport.mergeOptions(options);
-        return stackIntercept<FindWithTenantRequest, UserAdminResponse>("unary", this._transport, method, opt, input);
+        return stackIntercept<User, UserAdminResponse>("unary", this._transport, method, opt, input);
+    }
+    /**
+     * @generated from protobuf rpc: SetPassword(chat.UserPassword) returns (chat.UserAdminResponse);
+     */
+    setPassword(input: UserPassword, options?: RpcOptions): UnaryCall<UserPassword, UserAdminResponse> {
+        const method = this.methods[4], opt = this._transport.mergeOptions(options);
+        return stackIntercept<UserPassword, UserAdminResponse>("unary", this._transport, method, opt, input);
     }
 }
