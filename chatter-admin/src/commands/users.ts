@@ -3,6 +3,7 @@ import {
   ListWithTenantRequest,
   UserKind,
   UserPassword,
+  User,
 } from "../chat/chat";
 import { UsersAdminClient } from "../chat/chat.client";
 import { transport } from "../lib/transport";
@@ -23,6 +24,11 @@ export async function newUser(newUser) {
 
 export async function deleteUser(opts: FindWithTenantRequest) {
   const pending = usersAdminService.delete(opts);
+  return (await pending.response).user;
+}
+
+export async function updateUser(opts: User) {
+  const pending = usersAdminService.update(opts);
   return (await pending.response).user;
 }
 
