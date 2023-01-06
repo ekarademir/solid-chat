@@ -6,10 +6,11 @@ import { RiSystemAddFill } from "solid-icons/ri";
 import { RiSystemDeleteBin5Line } from "solid-icons/ri";
 import { RiSystemLockPasswordLine } from "solid-icons/ri";
 
+import Table from "../../components/Table";
+import LabelledInput from "../../components/form/LabelledInput";
 import commands from "../../commands/";
 import Loading from "../../lib/Loading";
 import Modal from "../../components/Modal";
-import Table from "../../components/Table";
 import { notificationsApi } from "../../lib/notifications/Notifications";
 import { errorMessage } from "../../commands/";
 
@@ -135,42 +136,24 @@ const Users: Component = () => {
         onClose={() => setOpenNewUserModal(false)}
         onSuccess={() => saveUser()}
       >
-        <div class="field">
-          <label class="label">Tenant name</label>
-          <div class="control">
-            <input
-              class="input"
-              type="text"
-              placeholder="Tenant name"
-              value={params.tenant}
-              disabled
-            />
-          </div>
-        </div>
-        <div class="field">
-          <label class="label">Username</label>
-          <div class="control">
-            <input
-              class="input"
-              type="text"
-              placeholder="Username"
-              value={userModel.username}
-              onInput={(e) => setUserModel("username", e.currentTarget.value)}
-            />
-          </div>
-        </div>
-        <div class="field">
-          <label class="label">Full Name (Optional)</label>
-          <div class="control">
-            <input
-              class="input"
-              type="text"
-              placeholder="Full name"
-              value={userModel.fullname}
-              onInput={(e) => setUserModel("fullname", e.currentTarget.value)}
-            />
-          </div>
-        </div>
+        <LabelledInput
+          label="Tenant name"
+          value={params.tenant}
+          placeholder="Tenant name"
+          disabled
+        />
+        <LabelledInput
+          label="Username"
+          onInput={(e) => setUserModel("username", e.currentTarget.value)}
+          placeholder="Username"
+          value={userModel.username}
+        />
+        <LabelledInput
+          label="Full Name (optional)"
+          placeholder="Full name"
+          value={userModel.fullname}
+          onInput={(e) => setUserModel("fullname", e.currentTarget.value)}
+        />
         <div class="field">
           <label class="label">Kind</label>
           <div class="control">
@@ -190,39 +173,25 @@ const Users: Component = () => {
         </div>
       </Modal>
       <Modal
-        title="New User"
+        title="Set Password"
         isOpen={openPasswordModal()}
         onClose={() => setOpenPasswordModal(false)}
         onSuccess={() => savePassword()}
       >
-        <div class="field">
-          <label class="label">Password</label>
-          <div class="control">
-            <input
-              class="input"
-              type="password"
-              placeholder="Password"
-              value={userModel.username}
-              onInput={(e) =>
-                setUserPasswordModel("password", e.currentTarget.value)
-              }
-            />
-          </div>
-        </div>
-        <div class="field">
-          <label class="label">Password repeat</label>
-          <div class="control">
-            <input
-              class="input"
-              type="password"
-              placeholder="Retype Password"
-              value={userModel.username}
-              onInput={(e) =>
-                setUserPasswordModel("passwordRepeat", e.currentTarget.value)
-              }
-            />
-          </div>
-        </div>
+        <LabelledInput
+          label="Password"
+          type="password"
+          onInput={(e) =>
+            setUserPasswordModel("password", e.currentTarget.value)
+          }
+        />
+        <LabelledInput
+          label="Password repeat"
+          type="password"
+          onInput={(e) =>
+            setUserPasswordModel("passwordRepeat", e.currentTarget.value)
+          }
+        />
       </Modal>
     </>
   );
