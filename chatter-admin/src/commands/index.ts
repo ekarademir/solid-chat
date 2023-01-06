@@ -4,6 +4,7 @@ import {
   deleteUser,
   listUsers,
   newUser,
+  updateUser,
   UserKindHumanReadable,
   setPassword,
 } from "./users";
@@ -19,6 +20,7 @@ export default {
     deleteUser,
     listUsers,
     newUser,
+    updateUser,
     setPassword,
     UserKind: UserKindHumanReadable,
   },

@@ -5,9 +5,13 @@ import { useParams } from "@solidjs/router";
 import { RiSystemAddFill } from "solid-icons/ri";
 import { RiSystemDeleteBin5Line } from "solid-icons/ri";
 import { RiSystemLockPasswordLine } from "solid-icons/ri";
+import { RiDesignEditBoxLine } from "solid-icons/ri";
 
 import Table from "../../components/Table";
 import LabelledInput from "../../components/form/LabelledInput";
+
+import SetPassportForm from "../../components/tenants/users/SetPasswordForm";
+
 import commands from "../../commands/";
 import Loading from "../../lib/Loading";
 import Modal from "../../components/Modal";
@@ -36,7 +40,18 @@ const Users: Component = () => {
       .newUser(userModel)
       .then(() => {
         scheduleSuccess("User created");
-        setOpenNewUserModal(false);
+        setNewEditUserModalOpen(false);
+      })
+      .catch((e) => scheduleError(errorMessage(e)))
+      .then(refetch);
+  };
+
+  const updateUser = () => {
+    commands.users
+      .updateUser(userModel)
+      .then(() => {
+        scheduleSuccess("User updated");
+        setNewEditUserModalOpen(false);
       })
       .catch((e) => scheduleError(errorMessage(e)))
       .then(refetch);
@@ -58,6 +73,14 @@ const Users: Component = () => {
     setOpenPasswordModal(true);
   };
 
+  const editUser = (username) => {
+    const user = users()
+      .filter((x) => x.username === username)
+      .at(0);
+    setUserModel(user);
+    openNewEditUserModal({ isNew: false });
+  };
+
   const savePassword = () => {
     commands.users
       .setPassword(userPasswordModel)
@@ -71,14 +94,21 @@ const Users: Component = () => {
 
   const [users, { refetch }] = createResource(fetchUsers);
 
-  // Modal state
-  const [openNewUserModal, setOpenNewUserModal] = createSignal(false);
+  // Edit Update User Modal state
+  const [newEditUserModalOpen, setNewEditUserModalOpen] = createSignal(false);
+  const [isEditUser, setIsEditUser] = createSignal(false);
   const [userModel, setUserModel] = createStore({
+    id: null,
     username: "",
     kind: 0,
     fullname: null,
     tenantName: params.tenant,
   });
+
+  const openNewEditUserModal = ({ isNew = true }) => {
+    isNew ? setIsEditUser(false) : setIsEditUser(true);
+    setNewEditUserModalOpen(true);
+  };
 
   // Password reset state
   const [openPasswordModal, setOpenPasswordModal] = createSignal(false);
@@ -92,7 +122,10 @@ const Users: Component = () => {
   return (
     <>
       <div class="content">
-        <button class="button" onClick={() => setOpenNewUserModal(true)}>
+        <button
+          class="button"
+          onClick={() => openNewEditUserModal({ isNew: true })}
+        >
           <span class="icon is-small">
             <RiSystemAddFill />
           </span>
@@ -124,6 +157,13 @@ const Users: Component = () => {
                       setPassword(row[0]);
                     },
                   },
+                  {
+                    // Edit user
+                    icon: <RiDesignEditBoxLine />,
+                    handler: (row) => {
+                      editUser(row[0]);
+                    },
+                  },
                 ]}
               />
             );
@@ -131,10 +171,10 @@ const Users: Component = () => {
         </Show>
       </div>
       <Modal
-        title="New User"
-        isOpen={openNewUserModal()}
-        onClose={() => setOpenNewUserModal(false)}
-        onSuccess={() => saveUser()}
+        title={isEditUser() ? "Edit User" : "New User"}
+        isOpen={newEditUserModalOpen()}
+        onClose={() => setNewEditUserModalOpen(false)}
+        onSuccess={() => (isEditUser() ? updateUser() : saveUser())}
       >
         <LabelledInput
           label="Tenant name"
@@ -147,6 +187,7 @@ const Users: Component = () => {
           onInput={(e) => setUserModel("username", e.currentTarget.value)}
           placeholder="Username"
           value={userModel.username}
+          disabled={isEditUser()}
         />
         <LabelledInput
           label="Full Name (optional)"
@@ -178,20 +219,7 @@ const Users: Component = () => {
         onClose={() => setOpenPasswordModal(false)}
         onSuccess={() => savePassword()}
       >
-        <LabelledInput
-          label="Password"
-          type="password"
-          onInput={(e) =>
-            setUserPasswordModel("password", e.currentTarget.value)
-          }
-        />
-        <LabelledInput
-          label="Password repeat"
-          type="password"
-          onInput={(e) =>
-            setUserPasswordModel("passwordRepeat", e.currentTarget.value)
-          }
-        />
+        <SetPassportForm modelUpdater={setUserPasswordModel} />
       </Modal>
     </>
   );

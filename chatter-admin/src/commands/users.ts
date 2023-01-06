@@ -17,7 +17,7 @@ export async function listUsers(opts: ListWithTenantRequest) {
   return users;
 }
 
-export async function newUser(newUser) {
+export async function newUser(newUser: User) {
   const pending = usersAdminService.create(newUser);
   return (await pending.response).user;
 }
