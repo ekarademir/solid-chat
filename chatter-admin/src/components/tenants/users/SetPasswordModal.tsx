@@ -45,11 +45,13 @@ const SetPassportModal: Component<SetPassportModalProps> = (props) => {
       <LabelledInput
         label="Password"
         type="password"
+        value={userPasswordModel.password}
         onInput={(e) => setUserPasswordModel("password", e.currentTarget.value)}
       />
       <LabelledInput
         label="Password repeat"
         type="password"
+        value={userPasswordModel.passwordRepeat}
         onInput={(e) =>
           setUserPasswordModel("passwordRepeat", e.currentTarget.value)
         }

@@ -11,7 +11,6 @@ import Table from "../../components/Table";
 import LabelledInput from "../../components/form/LabelledInput";
 
 import SetPassportModal, {
-  userPasswordModel,
   setUserPasswordModel,
 } from "../../components/tenants/users/SetPasswordModal";
 
@@ -76,8 +75,12 @@ const Users: Component = () => {
   };
 
   const setPassword = (username) => {
-    setUserPasswordModel("username", username);
-    setUserPasswordModel("tenantName", params.tenant);
+    setUserPasswordModel({
+      username,
+      tenantName: params.tenant,
+      password: "",
+      passwordRepeat: "",
+    });
     setOpenPasswordModal(true);
   };
 
