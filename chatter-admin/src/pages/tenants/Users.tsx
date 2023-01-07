@@ -1,5 +1,4 @@
-import { createResource, createSignal, Component, For, Show } from "solid-js";
-import { createStore } from "solid-js/store";
+import { createResource, createSignal, Component, Show } from "solid-js";
 import { useParams } from "@solidjs/router";
 
 import { RiSystemAddFill } from "solid-icons/ri";
@@ -7,26 +6,33 @@ import { RiSystemDeleteBin5Line } from "solid-icons/ri";
 import { RiSystemLockPasswordLine } from "solid-icons/ri";
 import { RiDesignEditBoxLine } from "solid-icons/ri";
 
+import Loading from "../../lib/Loading";
 import Table from "../../components/Table";
-import LabelledInput from "../../components/form/LabelledInput";
+
+import commands from "../../commands/";
+import { notificationsApi } from "../../lib/notifications/Notifications";
+import { errorMessage } from "../../commands/";
 
 import SetPassportModal, {
   setUserPasswordModel,
 } from "../../components/tenants/users/SetPasswordModal";
-
-import commands from "../../commands/";
-import Loading from "../../lib/Loading";
-import Modal from "../../components/Modal";
-import { notificationsApi } from "../../lib/notifications/Notifications";
-import { errorMessage } from "../../commands/";
+import CreateEditUserModal, {
+  setUserModel,
+  userModel,
+} from "../../components/tenants/users/CreateEditUserModal";
 
 const Users: Component = () => {
   const params = useParams();
-  const [_state, { scheduleError, scheduleSuccess, scheduleWarning }] =
-    notificationsApi();
+  const [_state, { scheduleError, scheduleWarning }] = notificationsApi();
 
-  // Password reset state
+  // Modal states
   const [openPasswordModal, setOpenPasswordModal] = createSignal(false);
+  const [newEditUserModalOpen, setNewEditUserModalOpen] = createSignal(false);
+  const [isEditUser, setIsEditUser] = createSignal(false);
+  const openNewEditUserModal = ({ isNew = true }) => {
+    isNew ? setIsEditUser(false) : setIsEditUser(true);
+    setNewEditUserModalOpen(true);
+  };
 
   const fetchUsers = async () => {
     try {
@@ -39,28 +45,6 @@ const Users: Component = () => {
       scheduleError(errorMessage(e));
       return [];
     }
-  };
-
-  const saveUser = () => {
-    commands.users
-      .newUser(userModel)
-      .then(() => {
-        scheduleSuccess("User created");
-        setNewEditUserModalOpen(false);
-      })
-      .catch((e) => scheduleError(errorMessage(e)))
-      .then(refetch);
-  };
-
-  const updateUser = () => {
-    commands.users
-      .updateUser(userModel)
-      .then(() => {
-        scheduleSuccess("User updated");
-        setNewEditUserModalOpen(false);
-      })
-      .catch((e) => scheduleError(errorMessage(e)))
-      .then(refetch);
   };
 
   const deleteUser = (username) => {
@@ -94,28 +78,20 @@ const Users: Component = () => {
 
   const [users, { refetch }] = createResource(fetchUsers);
 
-  // Edit Update User Modal state
-  const [newEditUserModalOpen, setNewEditUserModalOpen] = createSignal(false);
-  const [isEditUser, setIsEditUser] = createSignal(false);
-  const [userModel, setUserModel] = createStore({
-    id: null,
-    username: "",
-    kind: 0,
-    fullname: null,
-    tenantName: params.tenant,
-  });
-
-  const openNewEditUserModal = ({ isNew = true }) => {
-    isNew ? setIsEditUser(false) : setIsEditUser(true);
-    setNewEditUserModalOpen(true);
-  };
-
   return (
     <>
       <div class="content">
         <button
           class="button"
-          onClick={() => openNewEditUserModal({ isNew: true })}
+          onClick={() => {
+            setUserModel({
+              username: null,
+              kind: null,
+              fullname: null,
+              tenantName: params.tenant,
+            });
+            openNewEditUserModal({ isNew: true });
+          }}
         >
           <span class="icon is-small">
             <RiSystemAddFill />
@@ -161,49 +137,14 @@ const Users: Component = () => {
           }}
         </Show>
       </div>
-      <Modal
-        title={isEditUser() ? "Edit User" : "New User"}
-        isOpen={newEditUserModalOpen()}
-        onClose={() => setNewEditUserModalOpen(false)}
-        onSuccess={() => (isEditUser() ? updateUser() : saveUser())}
-      >
-        <LabelledInput
-          label="Tenant name"
-          value={params.tenant}
-          placeholder="Tenant name"
-          disabled
-        />
-        <LabelledInput
-          label="Username"
-          onInput={(e) => setUserModel("username", e.currentTarget.value)}
-          placeholder="Username"
-          value={userModel.username}
-          disabled={isEditUser()}
-        />
-        <LabelledInput
-          label="Full Name (optional)"
-          placeholder="Full name"
-          value={userModel.fullname}
-          onInput={(e) => setUserModel("fullname", e.currentTarget.value)}
-        />
-        <div class="field">
-          <label class="label">Kind</label>
-          <div class="control">
-            <div class="select">
-              <select
-                value={userModel.kind}
-                onChange={(e) =>
-                  setUserModel("kind", parseInt(e.currentTarget.value))
-                }
-              >
-                <For each={Object.entries(commands.users.UserKind)}>
-                  {([val, kind]) => <option value={val}>{kind}</option>}
-                </For>
-              </select>
-            </div>
-          </div>
-        </div>
-      </Modal>
+      <CreateEditUserModal
+        isEditUser={isEditUser}
+        isOpen={newEditUserModalOpen}
+        onClose={() => {
+          setNewEditUserModalOpen(false);
+          refetch();
+        }}
+      />
       <SetPassportModal
         isOpen={openPasswordModal}
         onClose={() => {
