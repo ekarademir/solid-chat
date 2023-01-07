@@ -37,13 +37,19 @@ impl Tenant {
         tenants::dsl::tenants.load::<Tenant>(conn).context("list")
     }
 
+    fn delete_entities(&self, conn: &mut PgConnection) -> Result<()> {
+        Ok(())
+    }
+
     pub fn delete(&self, conn: &mut PgConnection) -> Result<()> {
         if self.tenant_name == "chatter" {
             return Err(errors::ServiceError::CannotDeleteDefaultTenant.into());
         }
-        diesel::delete(self)
-            .execute(conn)
-            .context(self.tenant_name.clone())?;
+        self.delete_entities(conn).and_then(|_| {
+            diesel::delete(self)
+                .execute(conn)
+                .context(self.tenant_name.clone())
+        })?;
         Ok(())
     }
 }
