@@ -10,7 +10,10 @@ import { RiDesignEditBoxLine } from "solid-icons/ri";
 import Table from "../../components/Table";
 import LabelledInput from "../../components/form/LabelledInput";
 
-import SetPassportForm from "../../components/tenants/users/SetPasswordForm";
+import SetPassportModal, {
+  userPasswordModel,
+  setUserPasswordModel,
+} from "../../components/tenants/users/SetPasswordModal";
 
 import commands from "../../commands/";
 import Loading from "../../lib/Loading";
@@ -22,6 +25,10 @@ const Users: Component = () => {
   const params = useParams();
   const [_state, { scheduleError, scheduleSuccess, scheduleWarning }] =
     notificationsApi();
+
+  // Password reset state
+  const [openPasswordModal, setOpenPasswordModal] = createSignal(false);
+
   const fetchUsers = async () => {
     try {
       return await commands.users.listUsers({
@@ -70,6 +77,7 @@ const Users: Component = () => {
 
   const setPassword = (username) => {
     setUserPasswordModel("username", username);
+    setUserPasswordModel("tenantName", params.tenant);
     setOpenPasswordModal(true);
   };
 
@@ -79,17 +87,6 @@ const Users: Component = () => {
       .at(0);
     setUserModel(user);
     openNewEditUserModal({ isNew: false });
-  };
-
-  const savePassword = () => {
-    commands.users
-      .setPassword(userPasswordModel)
-      .then(() => {
-        scheduleSuccess("Password set");
-        setOpenPasswordModal(false);
-      })
-      .catch((e) => scheduleError(errorMessage(e)))
-      .then(refetch);
   };
 
   const [users, { refetch }] = createResource(fetchUsers);
@@ -109,15 +106,6 @@ const Users: Component = () => {
     isNew ? setIsEditUser(false) : setIsEditUser(true);
     setNewEditUserModalOpen(true);
   };
-
-  // Password reset state
-  const [openPasswordModal, setOpenPasswordModal] = createSignal(false);
-  const [userPasswordModel, setUserPasswordModel] = createStore({
-    username: "",
-    password: "",
-    passwordRepeat: "",
-    tenantName: params.tenant,
-  });
 
   return (
     <>
@@ -213,14 +201,13 @@ const Users: Component = () => {
           </div>
         </div>
       </Modal>
-      <Modal
-        title="Set Password"
-        isOpen={openPasswordModal()}
-        onClose={() => setOpenPasswordModal(false)}
-        onSuccess={() => savePassword()}
-      >
-        <SetPassportForm modelUpdater={setUserPasswordModel} />
-      </Modal>
+      <SetPassportModal
+        isOpen={openPasswordModal}
+        onClose={() => {
+          setOpenPasswordModal(false);
+          refetch();
+        }}
+      />
     </>
   );
 };
