@@ -50,7 +50,7 @@ const Users: Component = () => {
   const deleteUser = (username) => {
     commands.users
       .deleteUser({
-        name: username,
+        username: username,
         tenantName: params.tenant,
       })
       .then(() => scheduleWarning(`${username} deleted`))

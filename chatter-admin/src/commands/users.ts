@@ -22,8 +22,17 @@ export async function newUser(newUser: User) {
   return (await pending.response).user;
 }
 
-export async function deleteUser(opts: FindWithTenantRequest) {
-  const pending = usersAdminService.delete(opts);
+interface DeleteUserOpts {
+  username: string;
+  tenantName: string;
+}
+
+export async function deleteUser(opts: DeleteUserOpts) {
+  const req: FindWithTenantRequest = {
+    tenantName: opts.tenantName,
+    param: { findOneof: { oneofKind: "username", username: opts.username } },
+  };
+  const pending = usersAdminService.delete(req);
   return (await pending.response).user;
 }
 

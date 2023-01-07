@@ -12,26 +12,53 @@ import type { PartialMessage } from "@protobuf-ts/runtime";
 import { reflectionMergePartial } from "@protobuf-ts/runtime";
 import { MESSAGE_TYPE } from "@protobuf-ts/runtime";
 import { MessageType } from "@protobuf-ts/runtime";
+// 
+// Common
+// 
+
 /**
- *
- * Common
- *
- *
+ * @generated from protobuf message chat.FindParameter
+ */
+export interface FindParameter {
+    /**
+     * @generated from protobuf oneof: find_oneof
+     */
+    findOneof: {
+        oneofKind: "id";
+        /**
+         * @generated from protobuf field: int32 id = 1;
+         */
+        id: number;
+    } | {
+        oneofKind: "name";
+        /**
+         * @generated from protobuf field: string name = 2;
+         */
+        name: string;
+    } | {
+        oneofKind: "uuid";
+        /**
+         * @generated from protobuf field: string uuid = 3;
+         */
+        uuid: string;
+    } | {
+        oneofKind: "username";
+        /**
+         * @generated from protobuf field: string username = 4;
+         */
+        username: string;
+    } | {
+        oneofKind: undefined;
+    };
+}
+/**
  * @generated from protobuf message chat.FindRequest
  */
 export interface FindRequest {
     /**
-     * @generated from protobuf field: optional string name = 1;
+     * @generated from protobuf field: chat.FindParameter param = 1;
      */
-    name?: string;
-    /**
-     * @generated from protobuf field: optional string uuid = 2;
-     */
-    uuid?: string;
-    /**
-     * @generated from protobuf field: optional string id = 3;
-     */
-    id?: string;
+    param?: FindParameter;
 }
 /**
  * @generated from protobuf message chat.ListRequest
@@ -55,17 +82,9 @@ export interface FindWithTenantRequest {
      */
     tenantName: string;
     /**
-     * @generated from protobuf field: optional string name = 2;
+     * @generated from protobuf field: chat.FindParameter param = 2;
      */
-    name?: string;
-    /**
-     * @generated from protobuf field: optional string uuid = 3;
-     */
-    uuid?: string;
-    /**
-     * @generated from protobuf field: optional string id = 4;
-     */
-    id?: string;
+    param?: FindParameter;
 }
 /**
  * @generated from protobuf message chat.ListWithTenantRequest
@@ -83,6 +102,28 @@ export interface ListWithTenantRequest {
      * @generated from protobuf field: int32 count = 3;
      */
     count: number;
+}
+/**
+ * @generated from protobuf message chat.BasicAuthenticationRequest
+ */
+export interface BasicAuthenticationRequest {
+    /**
+     * @generated from protobuf field: string username = 1;
+     */
+    username: string;
+    /**
+     * @generated from protobuf field: string password = 2;
+     */
+    password: string;
+}
+/**
+ * @generated from protobuf message chat.BasicAuthenticationResponse
+ */
+export interface BasicAuthenticationResponse {
+    /**
+     * @generated from protobuf field: string session_token = 1;
+     */
+    sessionToken: string;
 }
 // 
 // /Common
@@ -183,12 +224,90 @@ export enum UserKind {
     REGISTERED = 2
 }
 // @generated message type with reflection information, may provide speed optimized methods
+class FindParameter$Type extends MessageType<FindParameter> {
+    constructor() {
+        super("chat.FindParameter", [
+            { no: 1, name: "id", kind: "scalar", oneof: "findOneof", T: 5 /*ScalarType.INT32*/ },
+            { no: 2, name: "name", kind: "scalar", oneof: "findOneof", T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "uuid", kind: "scalar", oneof: "findOneof", T: 9 /*ScalarType.STRING*/ },
+            { no: 4, name: "username", kind: "scalar", oneof: "findOneof", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<FindParameter>): FindParameter {
+        const message = { findOneof: { oneofKind: undefined } };
+        globalThis.Object.defineProperty(message, MESSAGE_TYPE, { enumerable: false, value: this });
+        if (value !== undefined)
+            reflectionMergePartial<FindParameter>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: FindParameter): FindParameter {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* int32 id */ 1:
+                    message.findOneof = {
+                        oneofKind: "id",
+                        id: reader.int32()
+                    };
+                    break;
+                case /* string name */ 2:
+                    message.findOneof = {
+                        oneofKind: "name",
+                        name: reader.string()
+                    };
+                    break;
+                case /* string uuid */ 3:
+                    message.findOneof = {
+                        oneofKind: "uuid",
+                        uuid: reader.string()
+                    };
+                    break;
+                case /* string username */ 4:
+                    message.findOneof = {
+                        oneofKind: "username",
+                        username: reader.string()
+                    };
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: FindParameter, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* int32 id = 1; */
+        if (message.findOneof.oneofKind === "id")
+            writer.tag(1, WireType.Varint).int32(message.findOneof.id);
+        /* string name = 2; */
+        if (message.findOneof.oneofKind === "name")
+            writer.tag(2, WireType.LengthDelimited).string(message.findOneof.name);
+        /* string uuid = 3; */
+        if (message.findOneof.oneofKind === "uuid")
+            writer.tag(3, WireType.LengthDelimited).string(message.findOneof.uuid);
+        /* string username = 4; */
+        if (message.findOneof.oneofKind === "username")
+            writer.tag(4, WireType.LengthDelimited).string(message.findOneof.username);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message chat.FindParameter
+ */
+export const FindParameter = new FindParameter$Type();
+// @generated message type with reflection information, may provide speed optimized methods
 class FindRequest$Type extends MessageType<FindRequest> {
     constructor() {
         super("chat.FindRequest", [
-            { no: 1, name: "name", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
-            { no: 2, name: "uuid", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
-            { no: 3, name: "id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
+            { no: 1, name: "param", kind: "message", T: () => FindParameter }
         ]);
     }
     create(value?: PartialMessage<FindRequest>): FindRequest {
@@ -203,14 +322,8 @@ class FindRequest$Type extends MessageType<FindRequest> {
         while (reader.pos < end) {
             let [fieldNo, wireType] = reader.tag();
             switch (fieldNo) {
-                case /* optional string name */ 1:
-                    message.name = reader.string();
-                    break;
-                case /* optional string uuid */ 2:
-                    message.uuid = reader.string();
-                    break;
-                case /* optional string id */ 3:
-                    message.id = reader.string();
+                case /* chat.FindParameter param */ 1:
+                    message.param = FindParameter.internalBinaryRead(reader, reader.uint32(), options, message.param);
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -224,15 +337,9 @@ class FindRequest$Type extends MessageType<FindRequest> {
         return message;
     }
     internalBinaryWrite(message: FindRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
-        /* optional string name = 1; */
-        if (message.name !== undefined)
-            writer.tag(1, WireType.LengthDelimited).string(message.name);
-        /* optional string uuid = 2; */
-        if (message.uuid !== undefined)
-            writer.tag(2, WireType.LengthDelimited).string(message.uuid);
-        /* optional string id = 3; */
-        if (message.id !== undefined)
-            writer.tag(3, WireType.LengthDelimited).string(message.id);
+        /* chat.FindParameter param = 1; */
+        if (message.param)
+            FindParameter.internalBinaryWrite(message.param, writer.tag(1, WireType.LengthDelimited).fork(), options).join();
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
@@ -302,9 +409,7 @@ class FindWithTenantRequest$Type extends MessageType<FindWithTenantRequest> {
     constructor() {
         super("chat.FindWithTenantRequest", [
             { no: 1, name: "tenant_name", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 2, name: "name", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
-            { no: 3, name: "uuid", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
-            { no: 4, name: "id", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
+            { no: 2, name: "param", kind: "message", T: () => FindParameter }
         ]);
     }
     create(value?: PartialMessage<FindWithTenantRequest>): FindWithTenantRequest {
@@ -322,14 +427,8 @@ class FindWithTenantRequest$Type extends MessageType<FindWithTenantRequest> {
                 case /* string tenant_name */ 1:
                     message.tenantName = reader.string();
                     break;
-                case /* optional string name */ 2:
-                    message.name = reader.string();
-                    break;
-                case /* optional string uuid */ 3:
-                    message.uuid = reader.string();
-                    break;
-                case /* optional string id */ 4:
-                    message.id = reader.string();
+                case /* chat.FindParameter param */ 2:
+                    message.param = FindParameter.internalBinaryRead(reader, reader.uint32(), options, message.param);
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -346,15 +445,9 @@ class FindWithTenantRequest$Type extends MessageType<FindWithTenantRequest> {
         /* string tenant_name = 1; */
         if (message.tenantName !== "")
             writer.tag(1, WireType.LengthDelimited).string(message.tenantName);
-        /* optional string name = 2; */
-        if (message.name !== undefined)
-            writer.tag(2, WireType.LengthDelimited).string(message.name);
-        /* optional string uuid = 3; */
-        if (message.uuid !== undefined)
-            writer.tag(3, WireType.LengthDelimited).string(message.uuid);
-        /* optional string id = 4; */
-        if (message.id !== undefined)
-            writer.tag(4, WireType.LengthDelimited).string(message.id);
+        /* chat.FindParameter param = 2; */
+        if (message.param)
+            FindParameter.internalBinaryWrite(message.param, writer.tag(2, WireType.LengthDelimited).fork(), options).join();
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
@@ -426,6 +519,107 @@ class ListWithTenantRequest$Type extends MessageType<ListWithTenantRequest> {
  * @generated MessageType for protobuf message chat.ListWithTenantRequest
  */
 export const ListWithTenantRequest = new ListWithTenantRequest$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class BasicAuthenticationRequest$Type extends MessageType<BasicAuthenticationRequest> {
+    constructor() {
+        super("chat.BasicAuthenticationRequest", [
+            { no: 1, name: "username", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "password", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<BasicAuthenticationRequest>): BasicAuthenticationRequest {
+        const message = { username: "", password: "" };
+        globalThis.Object.defineProperty(message, MESSAGE_TYPE, { enumerable: false, value: this });
+        if (value !== undefined)
+            reflectionMergePartial<BasicAuthenticationRequest>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: BasicAuthenticationRequest): BasicAuthenticationRequest {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string username */ 1:
+                    message.username = reader.string();
+                    break;
+                case /* string password */ 2:
+                    message.password = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: BasicAuthenticationRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string username = 1; */
+        if (message.username !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.username);
+        /* string password = 2; */
+        if (message.password !== "")
+            writer.tag(2, WireType.LengthDelimited).string(message.password);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message chat.BasicAuthenticationRequest
+ */
+export const BasicAuthenticationRequest = new BasicAuthenticationRequest$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class BasicAuthenticationResponse$Type extends MessageType<BasicAuthenticationResponse> {
+    constructor() {
+        super("chat.BasicAuthenticationResponse", [
+            { no: 1, name: "session_token", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<BasicAuthenticationResponse>): BasicAuthenticationResponse {
+        const message = { sessionToken: "" };
+        globalThis.Object.defineProperty(message, MESSAGE_TYPE, { enumerable: false, value: this });
+        if (value !== undefined)
+            reflectionMergePartial<BasicAuthenticationResponse>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: BasicAuthenticationResponse): BasicAuthenticationResponse {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string session_token */ 1:
+                    message.sessionToken = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: BasicAuthenticationResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string session_token = 1; */
+        if (message.sessionToken !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.sessionToken);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message chat.BasicAuthenticationResponse
+ */
+export const BasicAuthenticationResponse = new BasicAuthenticationResponse$Type();
 // @generated message type with reflection information, may provide speed optimized methods
 class Tenant$Type extends MessageType<Tenant> {
     constructor() {
@@ -710,6 +904,12 @@ class UserPassword$Type extends MessageType<UserPassword> {
  * @generated MessageType for protobuf message chat.UserPassword
  */
 export const UserPassword = new UserPassword$Type();
+/**
+ * @generated ServiceType for protobuf service chat.Authentication
+ */
+export const Authentication = new ServiceType("chat.Authentication", [
+    { name: "BasicAuthentication", options: {}, I: BasicAuthenticationRequest, O: BasicAuthenticationResponse }
+]);
 /**
  * @generated ServiceType for protobuf service chat.Tenants
  */

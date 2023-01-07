@@ -21,7 +21,7 @@ export async function newTenant(name: string) {
 
 export async function deleteTenant(name: string) {
   const pending = tenantsService.delete({
-    name,
+    param: { findOneof: { oneofKind: "name", name } },
   });
   return (await pending.response).tenant;
 }

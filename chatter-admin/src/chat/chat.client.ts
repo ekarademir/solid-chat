@@ -7,17 +7,46 @@ import type { FindWithTenantRequest } from "./chat";
 import type { ListWithTenantRequest } from "./chat";
 import type { UserAdminResponse } from "./chat";
 import type { User } from "./chat";
-import type { RpcTransport } from "@protobuf-ts/runtime-rpc";
-import type { ServiceInfo } from "@protobuf-ts/runtime-rpc";
 import { Tenants } from "./chat";
 import type { FindRequest } from "./chat";
 import type { ListRequest } from "./chat";
 import type { ServerStreamingCall } from "@protobuf-ts/runtime-rpc";
-import { stackIntercept } from "@protobuf-ts/runtime-rpc";
 import type { TenantResponse } from "./chat";
 import type { Tenant } from "./chat";
+import type { RpcTransport } from "@protobuf-ts/runtime-rpc";
+import type { ServiceInfo } from "@protobuf-ts/runtime-rpc";
+import { Authentication } from "./chat";
+import { stackIntercept } from "@protobuf-ts/runtime-rpc";
+import type { BasicAuthenticationResponse } from "./chat";
+import type { BasicAuthenticationRequest } from "./chat";
 import type { UnaryCall } from "@protobuf-ts/runtime-rpc";
 import type { RpcOptions } from "@protobuf-ts/runtime-rpc";
+/**
+ * @generated from protobuf service chat.Authentication
+ */
+export interface IAuthenticationClient {
+    /**
+     * @generated from protobuf rpc: BasicAuthentication(chat.BasicAuthenticationRequest) returns (chat.BasicAuthenticationResponse);
+     */
+    basicAuthentication(input: BasicAuthenticationRequest, options?: RpcOptions): UnaryCall<BasicAuthenticationRequest, BasicAuthenticationResponse>;
+}
+/**
+ * @generated from protobuf service chat.Authentication
+ */
+export class AuthenticationClient implements IAuthenticationClient, ServiceInfo {
+    typeName = Authentication.typeName;
+    methods = Authentication.methods;
+    options = Authentication.options;
+    constructor(private readonly _transport: RpcTransport) {
+    }
+    /**
+     * @generated from protobuf rpc: BasicAuthentication(chat.BasicAuthenticationRequest) returns (chat.BasicAuthenticationResponse);
+     */
+    basicAuthentication(input: BasicAuthenticationRequest, options?: RpcOptions): UnaryCall<BasicAuthenticationRequest, BasicAuthenticationResponse> {
+        const method = this.methods[0], opt = this._transport.mergeOptions(options);
+        return stackIntercept<BasicAuthenticationRequest, BasicAuthenticationResponse>("unary", this._transport, method, opt, input);
+    }
+}
 /**
  * @generated from protobuf service chat.Tenants
  */
