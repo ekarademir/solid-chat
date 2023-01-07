@@ -45,7 +45,7 @@ message BasicAuthenticationResponse {
 }
 
 service Authentication {
-  rpc BasicAuthentication(BasicAuthenticationRequest) returns (BasicAuthenticationResponse) {}
+  rpc BasicAuthentication(BasicAuthenticationRequest) returns (BasicAuthenticationResponse);
 }
 
 //
@@ -66,9 +66,9 @@ message TenantResponse {
 }
 
 service Tenants {
-  rpc Create(Tenant) returns (TenantResponse) {}
-  rpc List(ListRequest) returns (stream Tenant) {}
-  rpc Delete(FindRequest) returns (TenantResponse) {}
+  rpc Create(Tenant) returns (TenantResponse);
+  rpc List(ListRequest) returns (stream Tenant);
+  rpc Delete(FindRequest) returns (TenantResponse);
 }
 
 //
@@ -79,11 +79,11 @@ service Tenants {
 // Users
 //
 service UsersAdmin {
-  rpc Create(User) returns (UserAdminResponse) {}
-  rpc List(ListWithTenantRequest) returns (stream User) {}
-  rpc Delete(FindWithTenantRequest) returns (UserAdminResponse) {}
-  rpc Update(User) returns (UserAdminResponse) {}
-  rpc SetPassword(UserPassword) returns (UserAdminResponse) {}
+  rpc Create(User) returns (UserAdminResponse);
+  rpc List(ListWithTenantRequest) returns (stream User);
+  rpc Delete(FindWithTenantRequest) returns (UserAdminResponse);
+  rpc Update(User) returns (UserAdminResponse);
+  rpc SetPassword(UserPassword) returns (UserAdminResponse);
 }
 
 enum UserKind {
