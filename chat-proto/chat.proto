@@ -5,10 +5,18 @@ package chat;
 //
 // Common
 //
+
+message FindParameter {
+  oneof find_oneof {
+    int32 id = 1;
+    string name = 2;
+    string uuid = 3;
+    string username = 4;
+  }
+}
+
 message FindRequest {
-  optional string name = 1;
-  optional string uuid = 2;
-  optional string id = 3;
+  FindParameter param = 1;
 }
 
 message ListRequest {
@@ -18,9 +26,7 @@ message ListRequest {
 
 message FindWithTenantRequest {
   string tenant_name = 1;
-  optional string name = 2;
-  optional string uuid = 3;
-  optional string id = 4;
+  FindParameter param = 2;
 }
 
 message ListWithTenantRequest {

@@ -33,16 +33,18 @@ impl Tenants for TenantsService {
     }
 
     async fn delete(&self, req: Request<FindRequest>) -> ServiceResult<TenantResponse> {
-        super::connect_and(|mut conn| {
-            TenantModel::find_by_name(&mut conn, &req.get_ref().name.as_deref().unwrap_or(""))
-                .and_then(|tenant| tenant.delete(&mut conn))
-                .and_then(|_| Ok(TenantResponse { tenant: None }))
+        super::with_name(&req.get_ref().param, |name| {
+            super::connect_and(|mut conn| {
+                TenantModel::find_by_name(&mut conn, name)
+                    .and_then(|tenant| tenant.delete(&mut conn))
+                    .and_then(|_| Ok(TenantResponse { tenant: None }))
+            })
         })
         .response()
     }
 
     type ListStream = ReceiverStream<Result<Tenant, Status>>;
-    async fn list(&self, req: Request<ListRequest>) -> ServiceResult<Self::ListStream> {
+    async fn list(&self, _req: Request<ListRequest>) -> ServiceResult<Self::ListStream> {
         let (tx, rx) = tokio::sync::mpsc::channel(100);
         tokio::spawn(async move {
             match super::connect_and(|mut conn| {

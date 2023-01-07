@@ -69,10 +69,12 @@ impl UsersAdmin for UsersAdminService {
         req: Request<FindWithTenantRequest>,
     ) -> Result<Response<UserAdminResponse>, Status> {
         let req = req.get_ref();
-        super::check_tenant_and(&req.tenant_name, |mut conn, tenant| {
-            UserModel::find_by_username(&mut conn, tenant, &req.name.as_deref().unwrap_or(""))
-                .and_then(|user| user.delete(&mut conn))
-                .and_then(|_| Ok(UserAdminResponse { user: None }))
+        super::with_username(&req.param, |username| {
+            super::check_tenant_and(&req.tenant_name, |mut conn, tenant| {
+                UserModel::find_by_username(&mut conn, tenant, username)
+                    .and_then(|user| user.delete(&mut conn))
+                    .and_then(|_| Ok(UserAdminResponse { user: None }))
+            })
         })
         .response()
     }

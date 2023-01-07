@@ -6,8 +6,9 @@ use std::env;
 use tonic::{Response, Status};
 use tracing::{span, Level};
 
-use crate::errors;
+use crate::chat::{find_parameter::FindOneof, FindParameter};
 use crate::errors::ErrorExt;
+use crate::errors::ServiceError;
 use crate::models::tenant::Tenant;
 
 pub mod tenants;
@@ -44,6 +45,62 @@ where
         let tenant = Tenant::find_by_name(conn, &tenant_name)?;
         f(conn, &tenant)
     })
+}
+
+pub fn with_username<T, F>(field: &Option<FindParameter>, f: F) -> Result<T, anyhow::Error>
+where
+    F: Fn(&str) -> Result<T, anyhow::Error>,
+{
+    if let Some(x) = field {
+        if let Some(y) = &x.find_oneof {
+            if let FindOneof::Username(u) = y {
+                return f(&u);
+            }
+        }
+    }
+    Err(ServiceError::ValidationFailed).context("Missing username")
+}
+
+pub fn with_name<T, F>(field: &Option<FindParameter>, f: F) -> Result<T, anyhow::Error>
+where
+    F: Fn(&str) -> Result<T, anyhow::Error>,
+{
+    if let Some(x) = field {
+        if let Some(y) = &x.find_oneof {
+            if let FindOneof::Name(u) = y {
+                return f(&u);
+            }
+        }
+    }
+    Err(ServiceError::ValidationFailed).context("Missing name")
+}
+
+pub fn with_uuid<T, F>(field: &Option<FindParameter>, f: F) -> Result<T, anyhow::Error>
+where
+    F: Fn(&str) -> Result<T, anyhow::Error>,
+{
+    if let Some(x) = field {
+        if let Some(y) = &x.find_oneof {
+            if let FindOneof::Uuid(u) = y {
+                return f(&u);
+            }
+        }
+    }
+    Err(ServiceError::ValidationFailed).context("Missing uuid")
+}
+
+pub fn with_id<T, F>(field: &Option<FindParameter>, f: F) -> Result<T, anyhow::Error>
+where
+    F: Fn(&i32) -> Result<T, anyhow::Error>,
+{
+    if let Some(x) = field {
+        if let Some(y) = &x.find_oneof {
+            if let FindOneof::Id(u) = y {
+                return f(&u);
+            }
+        }
+    }
+    Err(ServiceError::ValidationFailed).context("Missing id")
 }
 
 pub trait Respondable<T> {
