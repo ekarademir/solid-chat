@@ -3,7 +3,7 @@ import { createStore } from "solid-js/store";
 
 import Modal from "../../Modal";
 import LabelledInput from "../../form/LabelledInput";
-import { errorMessage } from "../../../commands";
+import { errorMessage } from "../../../lib/error-message";
 
 import { notificationsApi } from "../../../lib/notifications/Notifications";
 import {

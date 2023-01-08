@@ -8,7 +8,7 @@ import { RiDesignEditBoxLine } from "solid-icons/ri";
 
 import Loading from "../../lib/Loading";
 import Table from "../Table";
-import { errorMessage } from "../../commands";
+import { errorMessage } from "../../lib/error-message";
 
 import { notificationsApi } from "../../lib/notifications/Notifications";
 import { usersAdminService } from "../../services/UsersAdminService";
