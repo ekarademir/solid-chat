@@ -1,24 +1,4 @@
-"use strict";
-import {
-  deleteUser,
-  listUsers,
-  newUser,
-  updateUser,
-  UserKindHumanReadable,
-  setPassword,
-} from "./users";
 import { RpcError } from "@protobuf-ts/runtime-rpc";
-
-export default {
-  users: {
-    deleteUser,
-    listUsers,
-    newUser,
-    updateUser,
-    setPassword,
-    UserKind: UserKindHumanReadable,
-  },
-};
 
 export function errorMessage(err: Error | RpcError) {
   const message = decodeURI(err.message);

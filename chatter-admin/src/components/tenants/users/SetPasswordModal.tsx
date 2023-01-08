@@ -3,10 +3,10 @@ import { createStore } from "solid-js/store";
 
 import LabelledInput from "../../form/LabelledInput";
 import Modal from "../../Modal";
+import { errorMessage } from "../../../commands";
 
 import { notificationsApi } from "../../../lib/notifications/Notifications";
-import commands from "../../../commands";
-import { errorMessage } from "../../../commands";
+import { usersAdminService } from "../../../services/UsersAdminService";
 
 const [userPasswordModel, setUserPasswordModel] = createStore({
   username: null,
@@ -23,11 +23,11 @@ export interface SetPassportModalProps {
 }
 
 const SetPassportModal: Component<SetPassportModalProps> = (props) => {
-  const [_state, { scheduleError, scheduleSuccess }] = notificationsApi();
+  const [_s1, { scheduleError, scheduleSuccess }] = notificationsApi();
+  const [_s2, { setPassword }] = usersAdminService();
 
   const savePassword = () => {
-    commands.users
-      .setPassword(userPasswordModel)
+    setPassword(userPasswordModel)
       .then(() => {
         scheduleSuccess("Password set");
         props.onClose();

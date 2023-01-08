@@ -3,10 +3,13 @@ import { createStore } from "solid-js/store";
 
 import Modal from "../../Modal";
 import LabelledInput from "../../form/LabelledInput";
-
-import commands from "../../../commands";
-import { notificationsApi } from "../../../lib/notifications/Notifications";
 import { errorMessage } from "../../../commands";
+
+import { notificationsApi } from "../../../lib/notifications/Notifications";
+import {
+  usersAdminService,
+  UserKindHumanReadable as UserKind,
+} from "../../../services/UsersAdminService";
 
 const [userModel, setUserModel] = createStore({
   id: null,
@@ -25,11 +28,11 @@ export interface CreateEditUserModalProps {
 }
 
 const CreateEditUserModal: Component<CreateEditUserModalProps> = (props) => {
-  const [_state, { scheduleError, scheduleSuccess }] = notificationsApi();
+  const [_s1, { scheduleError, scheduleSuccess }] = notificationsApi();
+  const [_s2, { newUser, updateUser }] = usersAdminService();
 
   const saveUser = () => {
-    commands.users
-      .newUser(userModel)
+    newUser(userModel)
       .then(() => {
         scheduleSuccess("User created");
         props.onClose();
@@ -37,9 +40,8 @@ const CreateEditUserModal: Component<CreateEditUserModalProps> = (props) => {
       .catch((e) => scheduleError(errorMessage(e)));
   };
 
-  const updateUser = () => {
-    commands.users
-      .updateUser(userModel)
+  const editUser = () => {
+    updateUser(userModel)
       .then(() => {
         scheduleSuccess("User updated");
         props.onClose();
@@ -51,7 +53,7 @@ const CreateEditUserModal: Component<CreateEditUserModalProps> = (props) => {
       title={props.isEditUser() ? "Edit User" : "New User"}
       isOpen={props.isOpen()}
       onClose={() => props.onClose()}
-      onSuccess={() => (props.isEditUser() ? updateUser() : saveUser())}
+      onSuccess={() => (props.isEditUser() ? editUser() : saveUser())}
     >
       <LabelledInput
         label="Tenant name"
@@ -83,7 +85,7 @@ const CreateEditUserModal: Component<CreateEditUserModalProps> = (props) => {
               }
             >
               <option value={null}>Select...</option>
-              <For each={Object.entries(commands.users.UserKind)}>
+              <For each={Object.entries(UserKind)}>
                 {([val, kind]) => <option value={val}>{kind}</option>}
               </For>
             </select>
