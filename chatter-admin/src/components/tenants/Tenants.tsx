@@ -5,20 +5,22 @@ import { RiSystemAddFill } from "solid-icons/ri";
 import { RiSystemDeleteBin5Line } from "solid-icons/ri";
 import { RiDocumentFolderUserLine } from "solid-icons/ri";
 
-import commands from "../../commands/";
 import Loading from "../../lib/Loading";
-import Modal from "../../components/Modal";
-import Table from "../../components/Table";
+import Modal from "../Modal";
+import Table from "../Table";
+import { errorMessage } from "../../commands";
+
 import { notificationsApi } from "../../lib/notifications/Notifications";
-import { errorMessage } from "../../commands/";
+import { tenantsService } from "../../services/TenantsService";
 
 const Tenants: Component = () => {
-  const [_state, { scheduleError, scheduleSuccess, scheduleWarning }] =
+  const [_s1, { scheduleError, scheduleSuccess, scheduleWarning }] =
     notificationsApi();
+  const [_s2, { deleteTenant, listTenants, newTenant }] = tenantsService();
 
   const fetchTenants = async () => {
     try {
-      return await commands.tenants.listTenants({
+      return await listTenants({
         start: 0,
         count: 10,
       });
@@ -31,8 +33,7 @@ const Tenants: Component = () => {
   const saveTenant = () => {
     const name = tenantName();
     if (name) {
-      commands.tenants
-        .newTenant(name)
+      newTenant(name)
         .then(() => scheduleSuccess(`Tenant, ${name}, created`))
         .catch((e) => scheduleError(errorMessage(e)))
         .then(refetch);
@@ -40,9 +41,8 @@ const Tenants: Component = () => {
     setOpenNewTenantModal(false);
   };
 
-  const deleteTenant = (name) => {
-    commands.tenants
-      .deleteTenant(name)
+  const removeTenant = (name) => {
+    deleteTenant(name)
       .then(() => scheduleWarning(`${name} deleted`))
       .catch((e) => scheduleError(errorMessage(e)))
       .then(refetch);
@@ -80,7 +80,7 @@ const Tenants: Component = () => {
                     // Delete
                     icon: <RiSystemDeleteBin5Line />,
                     handler: (row) => {
-                      deleteTenant(row[0]);
+                      removeTenant(row[0]);
                     },
                   },
                   {

@@ -5,7 +5,7 @@ import { MainMenu, MainMenuItem } from "./components/MainMenu";
 import { NotificationsProvider } from "./lib/notifications/Notifications";
 
 const Home = lazy(() => import("./pages/Home"));
-const Tenants = lazy(() => import("./pages/tenants/Tenants"));
+const Tenants = lazy(() => import("./pages/Tenants"));
 const TenantUsers = lazy(() => import("./pages/tenants/Users"));
 
 const App: Component = () => {
