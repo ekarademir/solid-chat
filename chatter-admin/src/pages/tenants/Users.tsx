@@ -18,7 +18,6 @@ import SetPassportModal, {
 } from "../../components/tenants/users/SetPasswordModal";
 import CreateEditUserModal, {
   setUserModel,
-  userModel,
 } from "../../components/tenants/users/CreateEditUserModal";
 
 const Users: Component = () => {
