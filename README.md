@@ -51,6 +51,12 @@ username: postgres
 postgres://postgres:mysecretpassword@localhost/diesel_demo
 ```
 
+## In memory storage
+
+### Starting redis
+
+podman run --rm --name chat-redis -d redis
+
 ## Protobuf
 
 ### Web client generation

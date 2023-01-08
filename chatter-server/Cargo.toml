@@ -14,6 +14,7 @@ http = "0.2.8"
 lazy-regex = "2.4.0"
 prost = "0.11.0"
 prost-types = "0.11.1"
+redis = {version="0.22.2", default-features=false, features=["aio", "tokio-comp"]}
 opentelemetry = {version="0.18.0", default-features=false, features=["trace"]}
 opentelemetry-jaeger = "0.17.0"
 thiserror = "1.0.38"

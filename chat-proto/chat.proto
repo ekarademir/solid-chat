@@ -42,6 +42,7 @@ message BasicAuthenticationRequest {
 
 message BasicAuthenticationResponse {
   string session_token = 1;
+  string session_state = 2;
 }
 
 service Authentication {
