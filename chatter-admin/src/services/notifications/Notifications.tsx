@@ -11,7 +11,7 @@ import { createStore } from "solid-js/store";
 import { Transition } from "solid-transition-group";
 
 import NotificationComponent from "../../components/Notification";
-import { pause } from "../utils";
+import { pause } from "../../lib/utils";
 import "./notifications.scss";
 
 const DEFAULT_DURATION = 3000; // ms

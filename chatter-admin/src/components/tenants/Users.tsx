@@ -6,11 +6,11 @@ import { RiSystemDeleteBin5Line } from "solid-icons/ri";
 import { RiSystemLockPasswordLine } from "solid-icons/ri";
 import { RiDesignEditBoxLine } from "solid-icons/ri";
 
-import Loading from "../../lib/Loading";
+import Loading from "../Loading";
 import Table from "../Table";
 import { errorMessage } from "../../lib/error-message";
 
-import { notificationsApi } from "../../lib/notifications/Notifications";
+import { notificationsApi } from "../../services/notifications/Notifications";
 import { usersAdminService } from "../../services/UsersAdminService";
 
 import SetPassportModal, {

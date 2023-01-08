@@ -2,7 +2,7 @@ import { Component, lazy } from "solid-js";
 import { A, Route, Routes } from "@solidjs/router";
 
 import { MainMenu, MainMenuItem } from "./components/MainMenu";
-import { NotificationsProvider } from "./lib/notifications/Notifications";
+import { NotificationsProvider } from "./services/notifications/Notifications";
 
 const Home = lazy(() => import("./pages/Home"));
 const Tenants = lazy(() => import("./pages/Tenants"));

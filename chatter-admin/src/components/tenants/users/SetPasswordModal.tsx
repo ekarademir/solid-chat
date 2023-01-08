@@ -5,7 +5,7 @@ import LabelledInput from "../../form/LabelledInput";
 import Modal from "../../Modal";
 import { errorMessage } from "../../../lib/error-message";
 
-import { notificationsApi } from "../../../lib/notifications/Notifications";
+import { notificationsApi } from "../../../services/notifications/Notifications";
 import { usersAdminService } from "../../../services/UsersAdminService";
 
 const [userPasswordModel, setUserPasswordModel] = createStore({

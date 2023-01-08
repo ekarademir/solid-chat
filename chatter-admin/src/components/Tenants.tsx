@@ -5,12 +5,12 @@ import { RiSystemAddFill } from "solid-icons/ri";
 import { RiSystemDeleteBin5Line } from "solid-icons/ri";
 import { RiDocumentFolderUserLine } from "solid-icons/ri";
 
-import Loading from "../lib/Loading";
+import Loading from "./Loading";
 import Modal from "./Modal";
 import Table from "./Table";
 import { errorMessage } from "../lib/error-message";
 
-import { notificationsApi } from "../lib/notifications/Notifications";
+import { notificationsApi } from "../services/notifications/Notifications";
 import { tenantsService } from "../services/TenantsService";
 
 const Tenants: Component = () => {

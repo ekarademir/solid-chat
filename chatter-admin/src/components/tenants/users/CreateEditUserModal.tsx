@@ -5,7 +5,7 @@ import Modal from "../../Modal";
 import LabelledInput from "../../form/LabelledInput";
 import { errorMessage } from "../../../lib/error-message";
 
-import { notificationsApi } from "../../../lib/notifications/Notifications";
+import { notificationsApi } from "../../../services/notifications/Notifications";
 import {
   usersAdminService,
   UserKindHumanReadable as UserKind,
