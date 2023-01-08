@@ -57,6 +57,9 @@ async fn listen(addr: std::net::SocketAddr) -> Result<(), Box<dyn std::error::Er
         .accept_http1(true)
         .layer(cors)
         .layer(tonic_web::GrpcWebLayer::new())
+        .layer(tonic::service::interceptor(
+            services::authenticate_middleware,
+        ))
         .add_service(tenants_service)
         .add_service(users_admin_service)
         .serve(addr)

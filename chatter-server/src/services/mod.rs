@@ -3,7 +3,7 @@ use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use dotenvy::dotenv;
 use std::env;
-use tonic::{Response, Status};
+use tonic::{Request, Response, Status};
 use tracing::{span, Level};
 
 use crate::chat::{find_parameter::FindOneof, FindParameter};
@@ -116,4 +116,9 @@ impl<T> Respondable<T> for Result<T, anyhow::Error> {
     fn with_status(self) -> Result<T, Status> {
         self.map_err(|e| e.into_status())
     }
+}
+
+pub fn authenticate_middleware(req: Request<()>) -> Result<Request<()>, Status> {
+    println!("{:?}", req);
+    Ok(req)
 }
