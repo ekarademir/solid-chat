@@ -59,19 +59,19 @@ export const TransportProvider: ParentComponent<{}> = (props) => {
   });
 
   const getMetaInfo = () => {
-    return { authorization: authenticationState.sessionToken };
+    return {
+      // Guard against null tokens
+      authorization: authenticationState.sessionToken || "NEWSESSION",
+    };
   };
 
   const decorateOptions = (options: RpcOptions): RpcOptions => {
     if (!options.meta) {
       options.meta = {};
     }
-    const serviceMeta = getMetaInfo();
-    // Guard against null tokens
-    serviceMeta.authorization = serviceMeta.authorization || "NEWSESSION";
     options.meta = {
       ...options.meta,
-      ...serviceMeta,
+      ...getMetaInfo(),
     };
     return options;
   };
