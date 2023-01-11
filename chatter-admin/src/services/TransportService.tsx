@@ -6,6 +6,7 @@ import {
 } from "solid-js";
 import { createStore } from "solid-js/store";
 import { GrpcWebFetchTransport } from "@protobuf-ts/grpcweb-transport";
+import { RpcOptions } from "@protobuf-ts/runtime-rpc";
 
 const ADMIN_SESSION_KEY = "chatter-admin-session";
 
@@ -24,7 +25,7 @@ export type TransportContextValue = [
 ];
 
 const defaultState: TransportContextState = {
-  sessionToken: null,
+  sessionToken: "YARRAK",
 };
 
 const TransportContext = createContext<TransportContextValue>([
@@ -61,9 +62,36 @@ export const TransportProvider: ParentComponent<{}> = (props) => {
     return { authorization: authenticationState.sessionToken };
   };
 
+  const decorateOptions = (options: RpcOptions): RpcOptions => {
+    if (!options.meta) {
+      options.meta = {};
+    }
+    const serviceMeta = getMetaInfo();
+    // Guard against null tokens
+    serviceMeta.authorization = serviceMeta.authorization || "NEWSESSION";
+    options.meta = {
+      ...options.meta,
+      ...serviceMeta,
+    };
+    return options;
+  };
+
   const transport = new GrpcWebFetchTransport({
     baseUrl: "https://rotatingwave.local:50051",
     format: "binary",
+    interceptors: [
+      {
+        interceptUnary(next, method, input, options) {
+          return next(method, input, decorateOptions(options));
+        },
+      },
+      {
+        interceptServerStreaming(next, method, input, options) {
+          const r = next(method, input, decorateOptions(options));
+          return r;
+        },
+      },
+    ],
   });
 
   return (

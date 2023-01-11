@@ -28,36 +28,30 @@ const TenantsContext = createContext<TenantsContextValue>([
 ]);
 
 export const TenantsProvider: ParentComponent<{}> = (props) => {
-  const [_s, { getMetaInfo, transport }] = transportService();
+  const [_s, { transport }] = transportService();
   const tenantsTransport = new TenantsClient(transport);
 
   const [tenantsState, _setTenantsState] = createStore<TenantsContextState>({});
 
   async function listTenants(opts: ListRequest) {
-    const pending = tenantsTransport.list(opts, { meta: getMetaInfo() });
+    const pending = tenantsTransport.list(opts);
     const tenants = [];
     for await (let t of pending.responses) tenants.push(t);
     return tenants;
   }
 
   async function newTenant(name: string) {
-    const pending = tenantsTransport.create(
-      {
-        name,
-        id: 0,
-      },
-      { meta: getMetaInfo() }
-    );
+    const pending = tenantsTransport.create({
+      name,
+      id: 0,
+    });
     return (await pending.response).tenant;
   }
 
   async function deleteTenant(name: string) {
-    const pending = tenantsTransport.delete(
-      {
-        param: { findOneof: { oneofKind: "name", name } },
-      },
-      { meta: getMetaInfo() }
-    );
+    const pending = tenantsTransport.delete({
+      param: { findOneof: { oneofKind: "name", name } },
+    });
     return (await pending.response).tenant;
   }
 
