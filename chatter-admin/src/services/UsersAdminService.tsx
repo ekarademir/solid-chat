@@ -8,8 +8,8 @@ import {
   UserPassword,
   User,
 } from "../chat/chat";
+import { transportService } from "./TransportService";
 import { UsersAdminClient } from "../chat/chat.client";
-import { transport } from "../lib/transport";
 
 export interface DeleteUserOpts {
   username: string;
@@ -27,8 +27,6 @@ export const UserKindHumanReadable: UserKindType = Object.create(null);
 UserKindHumanReadable[UserKind.INVITEE] = "Invitee";
 UserKindHumanReadable[UserKind.REGISTERED] = "Registered";
 UserKindHumanReadable[UserKind.VISITOR] = "Visitor";
-
-const usersAdminTransport = new UsersAdminClient(transport);
 
 export type UsersAdminContextState = {};
 
@@ -57,6 +55,9 @@ const UsersAdminContext = createContext<UsersAdminContextValue>([
 ]);
 
 export const UsersAdminProvider: ParentComponent<{}> = (props) => {
+  const [_s, { getMetaInfo, transport }] = transportService();
+  const usersAdminTransport = new UsersAdminClient(transport);
+
   const [usersAdminState, setUsersAdminState] =
     createStore<UsersAdminContextState>({});
 

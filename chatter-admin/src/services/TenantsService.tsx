@@ -3,10 +3,7 @@ import { createStore } from "solid-js/store";
 
 import { ListRequest, Tenant } from "../chat/chat";
 import { TenantsClient } from "../chat/chat.client";
-import { transport } from "../lib/transport";
 import { transportService } from "./TransportService";
-
-const tenantsTransport = new TenantsClient(transport);
 
 export type TenantsContextState = {};
 
@@ -31,7 +28,8 @@ const TenantsContext = createContext<TenantsContextValue>([
 ]);
 
 export const TenantsProvider: ParentComponent<{}> = (props) => {
-  const [_s, { getMetaInfo }] = transportService();
+  const [_s, { getMetaInfo, transport }] = transportService();
+  const tenantsTransport = new TenantsClient(transport);
 
   const [tenantsState, _setTenantsState] = createStore<TenantsContextState>({});
 
