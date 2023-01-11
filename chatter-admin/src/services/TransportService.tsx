@@ -6,7 +6,12 @@ import {
 } from "solid-js";
 import { createStore } from "solid-js/store";
 import { GrpcWebFetchTransport } from "@protobuf-ts/grpcweb-transport";
-import { RpcOptions } from "@protobuf-ts/runtime-rpc";
+import {
+  RpcOptions,
+  RpcOutputStreamController,
+  ServerStreamingCall,
+  UnaryCall,
+} from "@protobuf-ts/runtime-rpc";
 
 const ADMIN_SESSION_KEY = "chatter-admin-session";
 
@@ -82,13 +87,36 @@ export const TransportProvider: ParentComponent<{}> = (props) => {
     interceptors: [
       {
         interceptUnary(next, method, input, options) {
-          return next(method, input, decorateOptions(options));
+          const original = next(method, input, decorateOptions(options));
+          return new UnaryCall(
+            original.method,
+            original.requestHeaders,
+            original.request,
+            original.headers,
+            original.response,
+            original.status,
+            original.trailers
+          );
         },
       },
       {
         interceptServerStreaming(next, method, input, options) {
-          const r = next(method, input, decorateOptions(options));
-          return r;
+          const original = next(method, input, decorateOptions(options));
+          const response = new RpcOutputStreamController();
+          original.responses.onNext((message, error, done) => {
+            if (message) response.notifyMessage(message);
+            if (error) response.notifyError(error);
+            if (done) response.notifyComplete();
+          });
+          return new ServerStreamingCall(
+            original.method,
+            original.requestHeaders,
+            original.request,
+            original.headers,
+            response,
+            original.status,
+            original.trailers
+          );
         },
       },
     ],
