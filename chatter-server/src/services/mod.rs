@@ -2,6 +2,7 @@ use anyhow::Context;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use dotenvy::dotenv;
+use redis::Connection as RedisConnection;
 use std::env;
 use tonic::{Request, Response, Status};
 use tracing::{span, Level};
@@ -9,7 +10,7 @@ use tracing::{span, Level};
 use crate::chat::{find_parameter::FindOneof, FindParameter};
 use crate::errors::ErrorExt;
 use crate::errors::ServiceError;
-use crate::models::tenant::Tenant;
+use crate::models::{session::Session, tenant::Tenant};
 
 pub mod tenants;
 pub mod users_admin;
@@ -26,6 +27,17 @@ pub fn connect_to_pg() -> anyhow::Result<PgConnection> {
         .context("A databse connection cannot be established with provided url.")?;
 
     connect_to_pg_span.exit();
+    Ok(conn)
+}
+
+pub fn connect_to_redis() -> anyhow::Result<RedisConnection> {
+    dotenv()?;
+    let redis_url = env::var("REDIS_URL").context("REDIS_URL has not found in the environment")?;
+    let client =
+        redis::Client::open(redis_url.as_str()).context("Can't open connection to Redis server")?;
+    let conn = client
+        .get_connection()
+        .context("Can't obtain connection from redis client.")?;
     Ok(conn)
 }
 
@@ -119,6 +131,23 @@ impl<T> Respondable<T> for Result<T, anyhow::Error> {
 }
 
 pub fn authenticate_middleware(req: Request<()>) -> Result<Request<()>, Status> {
-    println!("{:?}", req);
-    Ok(req)
+    match req.metadata().get("authorization") {
+        Some(token) => {
+            // TODO remove this print
+            println!("Token is {:?}", token);
+
+            if let Ok(mut conn) = connect_to_redis() {
+                if let Ok(session) = Session::new("").find(&mut conn) {
+                    // TODO remove this print
+                    println!("Got session: {}", session);
+                    Ok(req)
+                } else {
+                    Err(Status::unauthenticated(""))
+                }
+            } else {
+                Err(Status::unavailable(""))
+            }
+        }
+        None => Err(Status::unauthenticated("")),
+    }
 }

@@ -42,6 +42,7 @@ export function errorMessage(err: Error | RpcError) {
         return "Unknown error.";
     }
   } else {
+    console.error(err);
     return message;
   }
 }

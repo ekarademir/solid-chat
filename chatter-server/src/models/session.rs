@@ -1,5 +1,5 @@
 use anyhow::{Context, Result};
-use redis::{Commands, Connection};
+use redis::Connection;
 use uuid::Uuid;
 
 const EXPIRY_S: usize = 60 * 15; // 15mins

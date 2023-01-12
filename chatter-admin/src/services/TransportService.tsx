@@ -1,3 +1,11 @@
+import { GrpcWebFetchTransport } from "@protobuf-ts/grpcweb-transport";
+import {
+  RpcError,
+  RpcOptions,
+  RpcOutputStreamController,
+  ServerStreamingCall,
+  UnaryCall,
+} from "@protobuf-ts/runtime-rpc";
 import {
   createContext,
   createEffect,
@@ -5,13 +13,7 @@ import {
   ParentComponent,
 } from "solid-js";
 import { createStore } from "solid-js/store";
-import { GrpcWebFetchTransport } from "@protobuf-ts/grpcweb-transport";
-import {
-  RpcOptions,
-  RpcOutputStreamController,
-  ServerStreamingCall,
-  UnaryCall,
-} from "@protobuf-ts/runtime-rpc";
+import { useNavigate } from "@solidjs/router";
 
 const ADMIN_SESSION_KEY = "chatter-admin-session";
 
@@ -30,7 +32,7 @@ export type TransportContextValue = [
 ];
 
 const defaultState: TransportContextState = {
-  sessionToken: "YARRAK",
+  sessionToken: "NEWSESSION",
 };
 
 const TransportContext = createContext<TransportContextValue>([
@@ -70,6 +72,18 @@ export const TransportProvider: ParentComponent<{}> = (props) => {
     };
   };
 
+  const maybeLogin = (err: Error | RpcError) => {
+    // const navigate = useNavigate();
+    console.error(err);
+    if (err instanceof RpcError) {
+      if (err.code === "UNAUTHORIZED") {
+        // navigate("/login", { replace: true });
+        return null;
+      }
+    }
+    return err;
+  };
+
   const decorateOptions = (options: RpcOptions): RpcOptions => {
     if (!options.meta) {
       options.meta = {};
@@ -88,12 +102,17 @@ export const TransportProvider: ParentComponent<{}> = (props) => {
       {
         interceptUnary(next, method, input, options) {
           const original = next(method, input, decorateOptions(options));
+
+          const response = original.response.catch((e) => {
+            return maybeLogin(e);
+          });
+
           return new UnaryCall(
             original.method,
             original.requestHeaders,
             original.request,
             original.headers,
-            original.response,
+            response,
             original.status,
             original.trailers
           );
@@ -105,7 +124,7 @@ export const TransportProvider: ParentComponent<{}> = (props) => {
           const response = new RpcOutputStreamController();
           original.responses.onNext((message, error, done) => {
             if (message) response.notifyMessage(message);
-            if (error) response.notifyError(error);
+            if (error) maybeLogin(error) || response.notifyError(error);
             if (done) response.notifyComplete();
           });
           return new ServerStreamingCall(
