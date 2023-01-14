@@ -12,6 +12,10 @@ use crate::errors::ErrorExt;
 use crate::errors::ServiceError;
 use crate::models::{session::Session, tenant::Tenant};
 
+pub use injection_middleware::InjectionLayer;
+
+pub mod authentication;
+pub mod injection_middleware;
 pub mod tenants;
 pub mod users_admin;
 
@@ -131,8 +135,12 @@ impl<T> Respondable<T> for Result<T, anyhow::Error> {
 }
 
 pub fn authenticate_middleware(req: Request<()>) -> Result<Request<()>, Status> {
-    match req.metadata().get("authorization") {
-        Some(token) => {
+    println!("{:?}", req);
+    let authorization = req.metadata().get("authorization");
+    let no_auth = req.metadata().get("no-auth");
+    match (no_auth, authorization) {
+        (Some(_), _) => Ok(req),
+        (None, Some(token)) => {
             let maybe_token = token.to_str();
             let maybe_conn = connect_to_redis();
 
@@ -144,7 +152,7 @@ pub fn authenticate_middleware(req: Request<()>) -> Result<Request<()>, Status> 
                         Ok(session_state) => {
                             // TODO remove this print
                             println!("Got session: {}", session_state);
-                            Ok(Request::new(()))
+                            Ok(req)
                         }
                         Err(_) => Err(Status::unauthenticated("")),
                     }
@@ -153,6 +161,7 @@ pub fn authenticate_middleware(req: Request<()>) -> Result<Request<()>, Status> 
                 (Err(_), _) => Err(Status::unauthenticated("")),
             }
         }
-        None => Err(Status::unauthenticated("")),
+        _ => Err(Status::unauthenticated("")),
     }
+    // }
 }

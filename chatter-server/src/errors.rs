@@ -13,6 +13,8 @@ pub enum ServiceError {
     ValidationFailed,
     #[error("No session token provided")]
     SessionTokenMissing,
+    #[error("Provided credentials are wrong")]
+    WrongCredentials,
 }
 
 pub trait ErrorExt {
@@ -51,6 +53,9 @@ impl ErrorExt for anyhow::Error {
                             Status::failed_precondition("Tenant does not exist")
                         }
                         Some(ServiceError::ValidationFailed) => {
+                            Status::failed_precondition(format!("{}", self))
+                        }
+                        Some(ServiceError::WrongCredentials) => {
                             Status::failed_precondition(format!("{}", self))
                         }
                         _ => Status::unknown(format!("{:?}", self)),

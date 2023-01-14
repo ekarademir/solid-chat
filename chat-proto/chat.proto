@@ -38,6 +38,7 @@ message ListWithTenantRequest {
 message BasicAuthenticationRequest {
   string username = 1;
   string password = 2;
+  optional string tenant_name = 3;
 }
 
 message BasicAuthenticationResponse {

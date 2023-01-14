@@ -11,6 +11,7 @@ use http::{header::HeaderName, HeaderValue, Method};
 use tonic::transport::{Identity, Server, ServerTlsConfig};
 use tower_http::cors::{Any, CorsLayer};
 
+use crate::services::authentication::{AuthenticationServer, AuthenticationService};
 use crate::services::tenants::{TenantsServer, TenantsService};
 use crate::services::users_admin::{UsersAdminServer, UsersAdminService};
 
@@ -23,6 +24,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 async fn listen(addr: std::net::SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
+    let authentication_service = AuthenticationServer::new(AuthenticationService::default());
     let tenants_service = TenantsServer::new(TenantsService::default());
     let users_admin_service = UsersAdminServer::new(UsersAdminService::default());
 
@@ -57,9 +59,11 @@ async fn listen(addr: std::net::SocketAddr) -> Result<(), Box<dyn std::error::Er
         .accept_http1(true)
         .layer(cors)
         .layer(tonic_web::GrpcWebLayer::new())
+        .layer(crate::services::InjectionLayer::default())
         .layer(tonic::service::interceptor(
             services::authenticate_middleware,
         ))
+        .add_service(authentication_service)
         .add_service(tenants_service)
         .add_service(users_admin_service)
         .serve(addr)

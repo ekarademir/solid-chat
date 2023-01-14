@@ -115,6 +115,10 @@ export interface BasicAuthenticationRequest {
      * @generated from protobuf field: string password = 2;
      */
     password: string;
+    /**
+     * @generated from protobuf field: optional string tenant_name = 3;
+     */
+    tenantName?: string;
 }
 /**
  * @generated from protobuf message chat.BasicAuthenticationResponse
@@ -528,7 +532,8 @@ class BasicAuthenticationRequest$Type extends MessageType<BasicAuthenticationReq
     constructor() {
         super("chat.BasicAuthenticationRequest", [
             { no: 1, name: "username", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 2, name: "password", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+            { no: 2, name: "password", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "tenant_name", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
         ]);
     }
     create(value?: PartialMessage<BasicAuthenticationRequest>): BasicAuthenticationRequest {
@@ -549,6 +554,9 @@ class BasicAuthenticationRequest$Type extends MessageType<BasicAuthenticationReq
                 case /* string password */ 2:
                     message.password = reader.string();
                     break;
+                case /* optional string tenant_name */ 3:
+                    message.tenantName = reader.string();
+                    break;
                 default:
                     let u = options.readUnknownField;
                     if (u === "throw")
@@ -567,6 +575,9 @@ class BasicAuthenticationRequest$Type extends MessageType<BasicAuthenticationReq
         /* string password = 2; */
         if (message.password !== "")
             writer.tag(2, WireType.LengthDelimited).string(message.password);
+        /* optional string tenant_name = 3; */
+        if (message.tenantName !== undefined)
+            writer.tag(3, WireType.LengthDelimited).string(message.tenantName);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

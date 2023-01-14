@@ -24,6 +24,16 @@ impl User {
         users::table.find(id).first(conn).context(id)
     }
 
+    pub fn root(conn: &mut PgConnection, username: &str) -> Result<User> {
+        let id = Uuid::parse_str("00000000-0000-0000-0000-000000000001")
+            .context("Can't parse root id")?;
+        users::table
+            .find(id)
+            .filter(users::columns::username.eq(username))
+            .first(conn)
+            .context("Can't find root user")
+    }
+
     pub fn find_by_username(
         conn: &mut PgConnection,
         tenant: &Tenant,
@@ -87,6 +97,14 @@ impl User {
             .set(users::password.eq(password.to_string()))
             .get_result(conn)
             .context("password change")
+    }
+
+    pub fn check_passport(&self, password: &str) -> Result<()> {
+        if self.password == password {
+            Ok(())
+        } else {
+            Err(errors::ServiceError::ValidationFailed).context("Provided credentials are wrong")
+        }
     }
 
     pub fn into_proto(&self, tenant: &Tenant) -> ProtoUser {
