@@ -135,7 +135,6 @@ impl<T> Respondable<T> for Result<T, anyhow::Error> {
 }
 
 pub fn authenticate_middleware(req: Request<()>) -> Result<Request<()>, Status> {
-    println!("{:?}", req);
     let authorization = req.metadata().get("authorization");
     let no_auth = req.metadata().get("no-auth");
     match (no_auth, authorization) {

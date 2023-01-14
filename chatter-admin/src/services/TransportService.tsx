@@ -65,7 +65,7 @@ const saveLocalSession = (state: TransportContextState) => {
 export const TransportProvider: ParentComponent<{}> = (props) => {
   const [authenticationState, setTransportState] =
     createStore<TransportContextState>(loadLocalSession());
-  const [sessionIsValid, setSessionIsValid] = createSignal(false);
+  const [sessionIsValid, setSessionIsValid] = createSignal(true);
 
   createEffect(() => {
     saveLocalSession(authenticationState);
@@ -79,11 +79,11 @@ export const TransportProvider: ParentComponent<{}> = (props) => {
   };
 
   const setSessionToken = (token) => {
+    setSessionIsValid(true);
     setTransportState("sessionToken", token);
   };
 
   const maybeLogin = (err: Error | RpcError) => {
-    // const navigate = useNavigate();
     if (err instanceof RpcError) {
       if (err.code === "UNAUTHENTICATED") {
         setSessionIsValid(false);
@@ -132,7 +132,6 @@ export const TransportProvider: ParentComponent<{}> = (props) => {
           const original = next(method, input, decorateOptions(options));
           const response = new RpcOutputStreamController();
           original.responses.onNext((message, error, done) => {
-            setSessionIsValid(true);
             if (message) response.notifyMessage(message);
             if (error) maybeLogin(error) || response.notifyError(error);
             if (done) response.notifyComplete();
