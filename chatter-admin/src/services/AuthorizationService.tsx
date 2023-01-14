@@ -1,6 +1,6 @@
 import { createContext, useContext, ParentComponent } from "solid-js";
 import { createStore } from "solid-js/store";
-import { useNavigate } from "@solidjs/router";
+import { useLocation, useNavigate } from "@solidjs/router";
 
 import { BasicAuthenticationRequest } from "../chat/chat";
 import { AuthenticationClient } from "../chat/chat.client";
@@ -31,13 +31,14 @@ export const AuthorizationProvider: ParentComponent<{}> = (props) => {
     createStore<AuthorizationContextState>({});
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   async function login(opts) {
     const pending = authenticationTransport.basicAuthentication(opts);
     const response = await pending.response;
     const token = response.sessionToken;
     setSessionToken(token);
-    navigate("/");
+    navigate(location.pathname);
   }
 
   return (

@@ -87,7 +87,7 @@ const Tenants: Component = () => {
                     // List Users
                     icon: <RiDocumentFolderUserLine />,
                     handler: (row) => {
-                      navigate(`/tenant/${row[0]}/users`);
+                      navigate(`/tenants/${row[0]}/users`);
                     },
                   },
                 ]}
