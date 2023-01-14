@@ -133,19 +133,24 @@ impl<T> Respondable<T> for Result<T, anyhow::Error> {
 pub fn authenticate_middleware(req: Request<()>) -> Result<Request<()>, Status> {
     match req.metadata().get("authorization") {
         Some(token) => {
-            // TODO remove this print
-            println!("Token is {:?}", token);
+            let maybe_token = token.to_str();
+            let maybe_conn = connect_to_redis();
 
-            if let Ok(mut conn) = connect_to_redis() {
-                if let Ok(session) = Session::new("").find(&mut conn) {
+            match (maybe_token, maybe_conn) {
+                (Ok(token), Ok(mut conn)) => {
                     // TODO remove this print
-                    println!("Got session: {}", session);
-                    Ok(req)
-                } else {
-                    Err(Status::unauthenticated(""))
+                    println!("Token is {:?}", token);
+                    match Session::new(Some(token)).find(&mut conn) {
+                        Ok(session_state) => {
+                            // TODO remove this print
+                            println!("Got session: {}", session_state);
+                            Ok(Request::new(()))
+                        }
+                        Err(_) => Err(Status::unauthenticated("")),
+                    }
                 }
-            } else {
-                Err(Status::unavailable(""))
+                (_, Err(_)) => Err(Status::unavailable("")),
+                (Err(_), _) => Err(Status::unauthenticated("")),
             }
         }
         None => Err(Status::unauthenticated("")),

@@ -9,11 +9,14 @@ import {
 import {
   createContext,
   createEffect,
+  createSignal,
   useContext,
   ParentComponent,
+  Show,
 } from "solid-js";
 import { createStore } from "solid-js/store";
-import { useNavigate } from "@solidjs/router";
+
+import Login from "../pages/Login";
 
 const ADMIN_SESSION_KEY = "chatter-admin-session";
 
@@ -60,6 +63,7 @@ const saveLocalSession = (state: TransportContextState) => {
 export const TransportProvider: ParentComponent<{}> = (props) => {
   const [authenticationState, setTransportState] =
     createStore<TransportContextState>(loadLocalSession());
+  const [sessionIsValid, setSessionIsValid] = createSignal(false);
 
   createEffect(() => {
     saveLocalSession(authenticationState);
@@ -74,10 +78,9 @@ export const TransportProvider: ParentComponent<{}> = (props) => {
 
   const maybeLogin = (err: Error | RpcError) => {
     // const navigate = useNavigate();
-    console.error(err);
     if (err instanceof RpcError) {
-      if (err.code === "UNAUTHORIZED") {
-        // navigate("/login", { replace: true });
+      if (err.code === "UNAUTHENTICATED") {
+        setSessionIsValid(false);
         return null;
       }
     }
@@ -123,6 +126,7 @@ export const TransportProvider: ParentComponent<{}> = (props) => {
           const original = next(method, input, decorateOptions(options));
           const response = new RpcOutputStreamController();
           original.responses.onNext((message, error, done) => {
+            setSessionIsValid(true);
             if (message) response.notifyMessage(message);
             if (error) maybeLogin(error) || response.notifyError(error);
             if (done) response.notifyComplete();
@@ -145,7 +149,9 @@ export const TransportProvider: ParentComponent<{}> = (props) => {
     <TransportContext.Provider
       value={[authenticationState, { getMetaInfo, transport }]}
     >
-      {props.children}
+      <Show when={sessionIsValid()} fallback={<Login />}>
+        {props.children}
+      </Show>
     </TransportContext.Provider>
   );
 };

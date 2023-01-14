@@ -2,6 +2,7 @@ import { RpcError } from "@protobuf-ts/runtime-rpc";
 
 export function errorMessage(err: Error | RpcError) {
   const message = decodeURI(err.message);
+  console.error(message);
   if (err instanceof RpcError) {
     switch (`${err.code}`) {
       case "OK":
@@ -37,12 +38,11 @@ export function errorMessage(err: Error | RpcError) {
       case "DATA_LOSS":
         return `Data loss with ${message}`;
       case "UNAUTHENTICATED":
-        return `${message} is unauthenticated`;
+        return `No logged in session found.`;
       default:
         return "Unknown error.";
     }
   } else {
-    console.error(err);
     return message;
   }
 }

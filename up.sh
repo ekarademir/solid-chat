@@ -7,4 +7,4 @@ sleep 5
 echo "Starting postgres"
 podman run --rm --name chat-data -v $(pwd)/data:/var/lib/postgresql/data -e POSTGRES_PASSWORD=mysecretpassword -p 5432:5432 -d postgres
 echo "Starting redis"
-podman run --rm --name chat-redis -d redis
+podman run --rm --name chat-redis -p 6379:6379 -d redis
