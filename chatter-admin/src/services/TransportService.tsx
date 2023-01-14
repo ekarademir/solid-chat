@@ -30,6 +30,7 @@ export type TransportContextValue = [
     getMetaInfo: () => {
       authorization: string;
     };
+    setSessionToken: (string) => void;
     transport: GrpcWebFetchTransport;
   }
 ];
@@ -42,6 +43,7 @@ const TransportContext = createContext<TransportContextValue>([
   defaultState,
   {
     getMetaInfo: () => undefined,
+    setSessionToken: () => undefined,
     transport: null,
   },
 ]);
@@ -74,6 +76,10 @@ export const TransportProvider: ParentComponent<{}> = (props) => {
       // Guard against null tokens
       authorization: authenticationState.sessionToken || "NEWSESSION",
     };
+  };
+
+  const setSessionToken = (token) => {
+    setTransportState("sessionToken", token);
   };
 
   const maybeLogin = (err: Error | RpcError) => {
@@ -147,7 +153,7 @@ export const TransportProvider: ParentComponent<{}> = (props) => {
 
   return (
     <TransportContext.Provider
-      value={[authenticationState, { getMetaInfo, transport }]}
+      value={[authenticationState, { getMetaInfo, setSessionToken, transport }]}
     >
       <Show when={sessionIsValid()} fallback={<Login />}>
         {props.children}

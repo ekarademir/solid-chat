@@ -124,6 +124,10 @@ export interface BasicAuthenticationResponse {
      * @generated from protobuf field: string session_token = 1;
      */
     sessionToken: string;
+    /**
+     * @generated from protobuf field: string session_state = 2;
+     */
+    sessionState: string;
 }
 // 
 // /Common
@@ -577,11 +581,12 @@ export const BasicAuthenticationRequest = new BasicAuthenticationRequest$Type();
 class BasicAuthenticationResponse$Type extends MessageType<BasicAuthenticationResponse> {
     constructor() {
         super("chat.BasicAuthenticationResponse", [
-            { no: 1, name: "session_token", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+            { no: 1, name: "session_token", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "session_state", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
         ]);
     }
     create(value?: PartialMessage<BasicAuthenticationResponse>): BasicAuthenticationResponse {
-        const message = { sessionToken: "" };
+        const message = { sessionToken: "", sessionState: "" };
         globalThis.Object.defineProperty(message, MESSAGE_TYPE, { enumerable: false, value: this });
         if (value !== undefined)
             reflectionMergePartial<BasicAuthenticationResponse>(this, message, value);
@@ -594,6 +599,9 @@ class BasicAuthenticationResponse$Type extends MessageType<BasicAuthenticationRe
             switch (fieldNo) {
                 case /* string session_token */ 1:
                     message.sessionToken = reader.string();
+                    break;
+                case /* string session_state */ 2:
+                    message.sessionState = reader.string();
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -610,6 +618,9 @@ class BasicAuthenticationResponse$Type extends MessageType<BasicAuthenticationRe
         /* string session_token = 1; */
         if (message.sessionToken !== "")
             writer.tag(1, WireType.LengthDelimited).string(message.sessionToken);
+        /* string session_state = 2; */
+        if (message.sessionState !== "")
+            writer.tag(2, WireType.LengthDelimited).string(message.sessionState);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

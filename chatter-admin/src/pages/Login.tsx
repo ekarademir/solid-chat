@@ -6,7 +6,13 @@ import LoginComponent from "../components/Login";
 const Login: Component = () => {
   return (
     <AuthorizationProvider>
-      <LoginComponent />
+      <div class="columns is-centered">
+        <div class="column is-6">
+          <div class="section">
+            <LoginComponent />
+          </div>
+        </div>
+      </div>
     </AuthorizationProvider>
   );
 };
