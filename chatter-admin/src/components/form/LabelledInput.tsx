@@ -17,10 +17,10 @@ const LabelledInput: Component<LabelledInputProps> = (props) => {
         <input
           class="input"
           type={props.type ?? "text"}
-          placeholder={props.placeholder}
+          placeholder={props.placeholder ?? props.label}
           onInput={props.onInput}
           disabled={props.disabled}
-          value={props.value}
+          value={props.value ?? null}
         />
       </div>
     </div>
