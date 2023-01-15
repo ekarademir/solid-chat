@@ -33,13 +33,18 @@ impl Authentication for AuthenticationService {
         maybe_user
             .and_then(|user| user.check_passport(&req.password))
             .and_then(|_| super::connect_to_redis())
-            .and_then(|mut conn| Session::new(None).save(&mut conn))
+            .and_then(|mut conn| {
+                Session::new()
+                    .with_expiry(req.long_session)
+                    .build()
+                    .save(&mut conn)
+            })
             .and_then(|session| {
                 Ok(BasicAuthenticationResponse {
                     session_state: "".to_string(),
                     session_token: session.hash.as_simple().to_string(),
                 })
             })
-            .response()
+            .respond()
     }
 }

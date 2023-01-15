@@ -120,12 +120,12 @@ where
 }
 
 pub trait Respondable<T> {
-    fn response(self) -> Result<Response<T>, Status>;
+    fn respond(self) -> Result<Response<T>, Status>;
     fn with_status(self) -> Result<T, Status>;
 }
 
 impl<T> Respondable<T> for Result<T, anyhow::Error> {
-    fn response(self) -> Result<Response<T>, Status> {
+    fn respond(self) -> Result<Response<T>, Status> {
         self.and_then(|x| Ok(Response::new(x)))
             .map_err(|e| e.into_status())
     }
@@ -140,14 +140,17 @@ pub fn authenticate_middleware(req: Request<()>) -> Result<Request<()>, Status> 
     match (no_auth, authorization) {
         (Some(_), _) => Ok(req),
         (None, Some(token)) => {
-            let maybe_token = token.to_str();
+            let maybe_session = token
+                .to_str()
+                .context("Can't convert auth header")
+                .and_then(|token| Session::with_token(token));
             let maybe_conn = connect_to_redis();
 
-            match (maybe_token, maybe_conn) {
-                (Ok(token), Ok(mut conn)) => {
+            match (maybe_session, maybe_conn) {
+                (Ok(session), Ok(mut conn)) => {
                     // TODO remove this print
                     println!("Token is {:?}", token);
-                    match Session::new(Some(token)).find(&mut conn) {
+                    match session.find(&mut conn) {
                         Ok(session_state) => {
                             // TODO remove this print
                             println!("Got session: {}", session_state);
@@ -156,8 +159,8 @@ pub fn authenticate_middleware(req: Request<()>) -> Result<Request<()>, Status> 
                         Err(_) => Err(Status::unauthenticated("")),
                     }
                 }
-                (_, Err(_)) => Err(Status::unavailable("")),
-                (Err(_), _) => Err(Status::unauthenticated("")),
+                (_, Err(_)) => Err(Status::unavailable("Service unavailable")),
+                (Err(_), _) => Err(Status::unauthenticated("Authentication token error")),
             }
         }
         _ => Err(Status::unauthenticated("")),

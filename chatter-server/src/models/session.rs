@@ -2,11 +2,15 @@ use anyhow::{Context, Result};
 use redis::Connection;
 use uuid::Uuid;
 
+use crate::errors::ServiceError;
+
 const EXPIRY_S: usize = 60 * 15; // 15mins
+const EXPIRY_LONG: usize = 60 * 60 * 24 * 2; // 2days
 
 pub struct Session {
     pub hash: Uuid,
     pub state: String,
+    pub expires: usize,
 }
 
 impl<'a> std::fmt::Display for Session {
@@ -16,13 +20,19 @@ impl<'a> std::fmt::Display for Session {
 }
 
 impl<'a> Session {
-    pub fn new(token: Option<&'a str>) -> Self {
-        Session {
-            hash: token
-                .and_then(|x| Uuid::parse_str(x).ok())
-                .unwrap_or(Uuid::new_v4()),
-            state: "NEW".to_string(),
-        }
+    pub fn new() -> SessionBuilder {
+        SessionBuilder::new()
+    }
+
+    pub fn with_token(token: &'a str) -> Result<Session> {
+        Uuid::parse_str(token)
+            .ok()
+            .and_then(|x| {
+                let mut session = Session::new().build();
+                session.hash = x;
+                Some(session)
+            })
+            .ok_or(anyhow::Error::new(ServiceError::SessionTokenInvalid))
     }
 
     pub fn save(self, conn: &mut Connection) -> Result<Self> {
@@ -31,7 +41,7 @@ impl<'a> Session {
         redis::transaction(conn, &[&key], |conn, pipe| {
             pipe.set(&key, self.state.clone())
                 .ignore()
-                .expire(&key, EXPIRY_S)
+                .expire(&key, self.expires)
                 .query(conn)
         })
         .context("Can't create session")?;
@@ -56,5 +66,39 @@ impl<'a> Session {
         self.state = result;
 
         Ok(self)
+    }
+}
+
+pub struct SessionBuilder {
+    inner: Session,
+}
+
+impl SessionBuilder {
+    pub fn new() -> Self {
+        let inner = Session {
+            hash: Uuid::new_v4(),
+            state: "NEW".to_string(),
+            expires: EXPIRY_S,
+        };
+        SessionBuilder { inner }
+    }
+
+    pub fn with_token(mut self, token: &str) -> Self {
+        self.inner.hash = Uuid::parse_str(token).ok().unwrap_or(Uuid::new_v4());
+        self
+    }
+
+    pub fn with_expiry(mut self, long: bool) -> Self {
+        self.inner.expires = if long { EXPIRY_LONG } else { EXPIRY_S };
+        self
+    }
+
+    pub fn long_session(mut self) -> Self {
+        self.inner.expires = EXPIRY_LONG;
+        self
+    }
+
+    pub fn build(self) -> Session {
+        self.inner
     }
 }

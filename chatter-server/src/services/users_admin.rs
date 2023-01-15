@@ -31,7 +31,7 @@ impl UsersAdmin for UsersAdminService {
                     })
             })
         })
-        .response()
+        .respond()
     }
 
     type ListStream = ReceiverStream<Result<User, Status>>;
@@ -76,7 +76,7 @@ impl UsersAdmin for UsersAdminService {
                     .and_then(|_| Ok(UserAdminResponse { user: None }))
             })
         })
-        .response()
+        .respond()
     }
 
     async fn update(&self, req: Request<User>) -> Result<Response<UserAdminResponse>, Status> {
@@ -92,7 +92,7 @@ impl UsersAdmin for UsersAdminService {
                     })
             })
         })
-        .response()
+        .respond()
     }
 
     async fn set_password(&self, req: Request<UserPassword>) -> ServiceResult<UserAdminResponse> {
@@ -108,6 +108,6 @@ impl UsersAdmin for UsersAdminService {
                     })
             })
         })
-        .response()
+        .respond()
     }
 }

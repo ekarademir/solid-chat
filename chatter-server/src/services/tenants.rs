@@ -29,7 +29,7 @@ impl Tenants for TenantsService {
                     })
             })
         })
-        .response()
+        .respond()
     }
 
     async fn delete(&self, req: Request<FindRequest>) -> ServiceResult<TenantResponse> {
@@ -40,7 +40,7 @@ impl Tenants for TenantsService {
                     .and_then(|_| Ok(TenantResponse { tenant: None }))
             })
         })
-        .response()
+        .respond()
     }
 
     type ListStream = ReceiverStream<Result<Tenant, Status>>;

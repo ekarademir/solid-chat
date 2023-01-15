@@ -13,6 +13,8 @@ pub enum ServiceError {
     ValidationFailed,
     #[error("No session token provided")]
     SessionTokenMissing,
+    #[error("Provided token is invalid")]
+    SessionTokenInvalid,
     #[error("Provided credentials are wrong")]
     WrongCredentials,
 }
