@@ -8,6 +8,7 @@ import { authorizationService } from "../services/AuthorizationService";
 const [loginState, setLoginState] = createStore<BasicAuthenticationRequest>({
   username: null,
   password: null,
+  longSession: false,
 });
 
 const Login: Component = () => {
@@ -26,6 +27,17 @@ const Login: Component = () => {
         value={loginState.password}
         onInput={(e) => setLoginState("password", e.currentTarget.value)}
       />
+      <div class="field">
+        <label class="checkbox">
+          <input
+            type="checkbox"
+            onChange={(e) =>
+              setLoginState("longSession", e.currentTarget.checked)
+            }
+          />
+          <span class="ml-2">Keep me logged in</span>
+        </label>
+      </div>
       <button class="button is-success" onClick={() => login(loginState)}>
         Save
       </button>

@@ -16,6 +16,8 @@ import type { Tenant } from "./chat";
 import type { RpcTransport } from "@protobuf-ts/runtime-rpc";
 import type { ServiceInfo } from "@protobuf-ts/runtime-rpc";
 import { Authentication } from "./chat";
+import type { LogoutResponse } from "./chat";
+import type { LogoutRequest } from "./chat";
 import { stackIntercept } from "@protobuf-ts/runtime-rpc";
 import type { BasicAuthenticationResponse } from "./chat";
 import type { BasicAuthenticationRequest } from "./chat";
@@ -29,6 +31,10 @@ export interface IAuthenticationClient {
      * @generated from protobuf rpc: BasicAuthentication(chat.BasicAuthenticationRequest) returns (chat.BasicAuthenticationResponse);
      */
     basicAuthentication(input: BasicAuthenticationRequest, options?: RpcOptions): UnaryCall<BasicAuthenticationRequest, BasicAuthenticationResponse>;
+    /**
+     * @generated from protobuf rpc: Logout(chat.LogoutRequest) returns (chat.LogoutResponse);
+     */
+    logout(input: LogoutRequest, options?: RpcOptions): UnaryCall<LogoutRequest, LogoutResponse>;
 }
 /**
  * @generated from protobuf service chat.Authentication
@@ -45,6 +51,13 @@ export class AuthenticationClient implements IAuthenticationClient, ServiceInfo 
     basicAuthentication(input: BasicAuthenticationRequest, options?: RpcOptions): UnaryCall<BasicAuthenticationRequest, BasicAuthenticationResponse> {
         const method = this.methods[0], opt = this._transport.mergeOptions(options);
         return stackIntercept<BasicAuthenticationRequest, BasicAuthenticationResponse>("unary", this._transport, method, opt, input);
+    }
+    /**
+     * @generated from protobuf rpc: Logout(chat.LogoutRequest) returns (chat.LogoutResponse);
+     */
+    logout(input: LogoutRequest, options?: RpcOptions): UnaryCall<LogoutRequest, LogoutResponse> {
+        const method = this.methods[1], opt = this._transport.mergeOptions(options);
+        return stackIntercept<LogoutRequest, LogoutResponse>("unary", this._transport, method, opt, input);
     }
 }
 /**

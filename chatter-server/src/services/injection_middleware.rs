@@ -53,6 +53,8 @@ where
 
 impl<S> InjectionMiddleware<S> {
     fn path(req: &hyper::Request<hyper::Body>) -> String {
+        // TODO remove this print
+        println!("URI is {:?}", req.uri());
         req.uri().to_string()
     }
 

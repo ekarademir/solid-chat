@@ -57,6 +57,14 @@ impl<'a> Session {
         Ok(result)
     }
 
+    pub fn delete(&'a self, conn: &mut Connection) -> Result<usize> {
+        let result: usize = redis::cmd("DEL")
+            .arg(self.to_string())
+            .query(conn)
+            .context(format!("Can't delete session {}", self.hash))?;
+        Ok(result)
+    }
+
     pub fn load(mut self, conn: &mut Connection) -> Result<Self> {
         let result: String = redis::cmd("GET")
             .arg(self.to_string())
@@ -89,6 +97,8 @@ impl SessionBuilder {
     }
 
     pub fn with_expiry(mut self, long: bool) -> Self {
+        // TODO remove this print
+        println!("Long session? {}", long);
         self.inner.expires = if long { EXPIRY_LONG } else { EXPIRY_S };
         self
     }

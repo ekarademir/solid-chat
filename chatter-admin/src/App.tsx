@@ -1,10 +1,13 @@
 import { Component, lazy } from "solid-js";
 import { A, Route, Routes } from "@solidjs/router";
+import { BiRegularExit } from "solid-icons/bi";
 
 import { MainMenu, MainMenuItem } from "./components/MainMenu";
 import { NotificationsProvider } from "./services/notifications/Notifications";
+import { authorizationService } from "./services/AuthorizationService";
 
 const App: Component = () => {
+  const [_s, { logout }] = authorizationService();
   return (
     <NotificationsProvider>
       <div class="columns">
@@ -15,6 +18,17 @@ const App: Component = () => {
             </MainMenuItem>
             <MainMenuItem>
               <A href="/tenants">Tenants</A>
+            </MainMenuItem>
+            <MainMenuItem>
+              <button
+                class="button is-link is-inverted"
+                onClick={() => logout()}
+              >
+                <span class="icon">
+                  <BiRegularExit />
+                </span>
+                <span>Logout</span>
+              </button>
             </MainMenuItem>
           </MainMenu>
         </div>

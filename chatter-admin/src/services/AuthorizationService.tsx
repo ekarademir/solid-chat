@@ -12,6 +12,7 @@ export type AuthorizationContextValue = [
   state: AuthorizationContextState,
   actions: {
     login: (BasicAuthenticationRequest) => Promise<void>;
+    logout: () => Promise<void>;
   }
 ];
 
@@ -21,6 +22,7 @@ const AuthorizationContext = createContext<AuthorizationContextValue>([
   defaultState,
   {
     login: () => undefined,
+    logout: () => undefined,
   },
 ]);
 
@@ -41,8 +43,17 @@ export const AuthorizationProvider: ParentComponent<{}> = (props) => {
     navigate(location.pathname);
   }
 
+  async function logout() {
+    const pending = authenticationTransport.logout({});
+    await pending.response;
+    setSessionToken("EMPTY");
+    navigate("/");
+  }
+
   return (
-    <AuthorizationContext.Provider value={[authorizationState, { login }]}>
+    <AuthorizationContext.Provider
+      value={[authorizationState, { login, logout }]}
+    >
       {props.children}
     </AuthorizationContext.Provider>
   );

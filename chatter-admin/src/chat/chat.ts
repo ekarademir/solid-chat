@@ -116,7 +116,11 @@ export interface BasicAuthenticationRequest {
      */
     password: string;
     /**
-     * @generated from protobuf field: optional string tenant_name = 3;
+     * @generated from protobuf field: bool long_session = 3;
+     */
+    longSession: boolean;
+    /**
+     * @generated from protobuf field: optional string tenant_name = 4;
      */
     tenantName?: string;
 }
@@ -132,6 +136,16 @@ export interface BasicAuthenticationResponse {
      * @generated from protobuf field: string session_state = 2;
      */
     sessionState: string;
+}
+/**
+ * @generated from protobuf message chat.LogoutRequest
+ */
+export interface LogoutRequest {
+}
+/**
+ * @generated from protobuf message chat.LogoutResponse
+ */
+export interface LogoutResponse {
 }
 // 
 // /Common
@@ -533,11 +547,12 @@ class BasicAuthenticationRequest$Type extends MessageType<BasicAuthenticationReq
         super("chat.BasicAuthenticationRequest", [
             { no: 1, name: "username", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
             { no: 2, name: "password", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 3, name: "tenant_name", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
+            { no: 3, name: "long_session", kind: "scalar", T: 8 /*ScalarType.BOOL*/ },
+            { no: 4, name: "tenant_name", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
         ]);
     }
     create(value?: PartialMessage<BasicAuthenticationRequest>): BasicAuthenticationRequest {
-        const message = { username: "", password: "" };
+        const message = { username: "", password: "", longSession: false };
         globalThis.Object.defineProperty(message, MESSAGE_TYPE, { enumerable: false, value: this });
         if (value !== undefined)
             reflectionMergePartial<BasicAuthenticationRequest>(this, message, value);
@@ -554,7 +569,10 @@ class BasicAuthenticationRequest$Type extends MessageType<BasicAuthenticationReq
                 case /* string password */ 2:
                     message.password = reader.string();
                     break;
-                case /* optional string tenant_name */ 3:
+                case /* bool long_session */ 3:
+                    message.longSession = reader.bool();
+                    break;
+                case /* optional string tenant_name */ 4:
                     message.tenantName = reader.string();
                     break;
                 default:
@@ -575,9 +593,12 @@ class BasicAuthenticationRequest$Type extends MessageType<BasicAuthenticationReq
         /* string password = 2; */
         if (message.password !== "")
             writer.tag(2, WireType.LengthDelimited).string(message.password);
-        /* optional string tenant_name = 3; */
+        /* bool long_session = 3; */
+        if (message.longSession !== false)
+            writer.tag(3, WireType.Varint).bool(message.longSession);
+        /* optional string tenant_name = 4; */
         if (message.tenantName !== undefined)
-            writer.tag(3, WireType.LengthDelimited).string(message.tenantName);
+            writer.tag(4, WireType.LengthDelimited).string(message.tenantName);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
@@ -642,6 +663,58 @@ class BasicAuthenticationResponse$Type extends MessageType<BasicAuthenticationRe
  * @generated MessageType for protobuf message chat.BasicAuthenticationResponse
  */
 export const BasicAuthenticationResponse = new BasicAuthenticationResponse$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class LogoutRequest$Type extends MessageType<LogoutRequest> {
+    constructor() {
+        super("chat.LogoutRequest", []);
+    }
+    create(value?: PartialMessage<LogoutRequest>): LogoutRequest {
+        const message = {};
+        globalThis.Object.defineProperty(message, MESSAGE_TYPE, { enumerable: false, value: this });
+        if (value !== undefined)
+            reflectionMergePartial<LogoutRequest>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: LogoutRequest): LogoutRequest {
+        return target ?? this.create();
+    }
+    internalBinaryWrite(message: LogoutRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message chat.LogoutRequest
+ */
+export const LogoutRequest = new LogoutRequest$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class LogoutResponse$Type extends MessageType<LogoutResponse> {
+    constructor() {
+        super("chat.LogoutResponse", []);
+    }
+    create(value?: PartialMessage<LogoutResponse>): LogoutResponse {
+        const message = {};
+        globalThis.Object.defineProperty(message, MESSAGE_TYPE, { enumerable: false, value: this });
+        if (value !== undefined)
+            reflectionMergePartial<LogoutResponse>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: LogoutResponse): LogoutResponse {
+        return target ?? this.create();
+    }
+    internalBinaryWrite(message: LogoutResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message chat.LogoutResponse
+ */
+export const LogoutResponse = new LogoutResponse$Type();
 // @generated message type with reflection information, may provide speed optimized methods
 class Tenant$Type extends MessageType<Tenant> {
     constructor() {
@@ -930,7 +1003,8 @@ export const UserPassword = new UserPassword$Type();
  * @generated ServiceType for protobuf service chat.Authentication
  */
 export const Authentication = new ServiceType("chat.Authentication", [
-    { name: "BasicAuthentication", options: {}, I: BasicAuthenticationRequest, O: BasicAuthenticationResponse }
+    { name: "BasicAuthentication", options: {}, I: BasicAuthenticationRequest, O: BasicAuthenticationResponse },
+    { name: "Logout", options: {}, I: LogoutRequest, O: LogoutResponse }
 ]);
 /**
  * @generated ServiceType for protobuf service chat.Tenants

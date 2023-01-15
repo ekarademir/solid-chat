@@ -38,7 +38,8 @@ message ListWithTenantRequest {
 message BasicAuthenticationRequest {
   string username = 1;
   string password = 2;
-  optional string tenant_name = 3;
+  bool long_session = 3;
+  optional string tenant_name = 4;
 }
 
 message BasicAuthenticationResponse {
@@ -46,8 +47,12 @@ message BasicAuthenticationResponse {
   string session_state = 2;
 }
 
+message LogoutRequest {}
+message LogoutResponse {}
+
 service Authentication {
   rpc BasicAuthentication(BasicAuthenticationRequest) returns (BasicAuthenticationResponse);
+  rpc Logout(LogoutRequest) returns (LogoutResponse);
 }
 
 //
