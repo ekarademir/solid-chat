@@ -2,6 +2,8 @@ use std::task::{Context as StdContext, Poll};
 use tonic::body::BoxBody;
 use tower::{Layer, Service};
 
+const NO_AUTH: &str = "no-auth";
+
 #[derive(Debug, Clone, Default)]
 pub struct InjectionLayer;
 
@@ -72,12 +74,12 @@ impl<S> InjectionMiddleware<S> {
     // Injection is done here because
     // tonic Interceptors don't allow URI access
     fn inject_no_auth(req: &mut hyper::Request<hyper::Body>) {
-        let client_no_auth_header = req.headers().get("no-auth").is_some();
+        // no-auth shouldn't be set from client side
+        req.headers_mut().remove(NO_AUTH);
 
-        if !client_no_auth_header && Self::is_no_auth(&req) {
-            // no-auth shouldn't be set from client side
+        if Self::is_no_auth(&req) {
             req.headers_mut().insert(
-                "no-auth",
+                NO_AUTH,
                 // Unwrap is fine since this won't fail.
                 hyper::header::HeaderValue::from_str("true").unwrap(),
             );
