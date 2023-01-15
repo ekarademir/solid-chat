@@ -67,6 +67,8 @@ impl<S> InjectionMiddleware<S> {
         false
     }
 
+    // Injection is done here because
+    // tonic Interceptors don't allow URI access
     fn inject_no_auth(req: &mut hyper::Request<hyper::Body>) {
         let client_no_auth_header = req.headers().get("no-auth").is_some();
 
