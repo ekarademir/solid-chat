@@ -162,5 +162,4 @@ pub fn authenticate_middleware(req: Request<()>) -> Result<Request<()>, Status> 
         }
         _ => Err(Status::unauthenticated("")),
     }
-    // }
 }

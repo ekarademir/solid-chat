@@ -42,25 +42,43 @@ where
         let mut inner = std::mem::replace(&mut self.inner, clone);
 
         Box::pin(async move {
-            let has_no_auth = req.headers().get("no-auth").is_some();
-            let is_no_auth = req
-                .uri()
-                .to_string()
-                .ends_with("chat.Authentication/BasicAuthentication");
-
-            if is_no_auth && !has_no_auth {
-                // no-auth shouldn't be set from client side
-                req.headers_mut().insert(
-                    "no-auth",
-                    // Unwrap is fine since this won't fail.
-                    hyper::header::HeaderValue::from_str("true").unwrap(),
-                );
-                println!("No auth injected");
-            }
+            Self::inject_no_auth(&mut req);
 
             let response = inner.call(req).await?;
 
             Ok(response)
         })
+    }
+}
+
+impl<S> InjectionMiddleware<S> {
+    fn path(req: &hyper::Request<hyper::Body>) -> String {
+        req.uri().to_string()
+    }
+
+    fn is_no_auth(req: &hyper::Request<hyper::Body>) -> bool {
+        let no_auth_list = vec!["chat.Authentication/BasicAuthentication"];
+
+        for path in no_auth_list {
+            if Self::path(&req).ends_with(path) {
+                return true;
+            };
+        }
+        false
+    }
+
+    fn inject_no_auth(req: &mut hyper::Request<hyper::Body>) {
+        let client_no_auth_header = req.headers().get("no-auth").is_some();
+
+        if !client_no_auth_header && Self::is_no_auth(&req) {
+            // no-auth shouldn't be set from client side
+            req.headers_mut().insert(
+                "no-auth",
+                // Unwrap is fine since this won't fail.
+                hyper::header::HeaderValue::from_str("true").unwrap(),
+            );
+            // TODO remove this print
+            println!("No auth injected");
+        }
     }
 }
